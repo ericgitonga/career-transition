@@ -6,6 +6,22 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.2.0] - 2026-07-29
+
+### Added
+
+- Playwright-based E2E smoke suite in `e2e/` covering the golden path (page
+  loads, metadata correct, every section renders, footer copyright present)
+  and every "Start My Plan" CTA / contact link pointing at the right target
+  — mirroring the pattern used in `umoja-voices`/`ebc-songs`/`merch-mockup`,
+  simplified since this app has no auth/database/forms of its own.
+- `.github/workflows/e2e.yml` gates every PR to `main` on the suite, running
+  it against a production build (`next build && next start`) on the runner
+  — no Vercel/Supabase secrets needed since there's nothing here to diverge
+  from a real deployment. (closes #1)
+
+tag: `v0.2.0`
+
 ## [0.1.0] - 2026-07-28
 
 ### Added
