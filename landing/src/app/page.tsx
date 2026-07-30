@@ -273,6 +273,35 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="pricing" className="bg-white">
+        <div className="mx-auto max-w-5xl px-6 py-20">
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            Simple, upfront pricing
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+            One flat fee for the complete Career Transition Plan. No hidden costs, no
+            upsells.
+          </p>
+          <div className="mt-10 flex flex-col items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-10 text-center">
+            <span className="text-sm font-semibold uppercase tracking-wide text-[#0E7C7B]">
+              Introductory offer — 50% off
+            </span>
+            <div className="flex items-baseline gap-3">
+              <span className="text-lg text-slate-400 line-through">KES 15,000</span>
+              <span className="text-4xl font-bold text-[#1B2A4A]">KES 7,500</span>
+            </div>
+            <p className="max-w-md text-sm leading-6 text-slate-600">
+              A one-time fee, paid when you submit your intake form.
+            </p>
+            <CtaButton className="mt-4" />
+            <p className="text-xs text-slate-500">
+              This introductory price won&apos;t be around for long — once the offer
+              closes, it&apos;s back to full price.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section id="testimonials" className="bg-[#1B2A4A] text-white">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight">What clients have said</h2>
