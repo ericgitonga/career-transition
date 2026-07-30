@@ -23,7 +23,7 @@ from playwright.sync_api import sync_playwright
 
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:3000").rstrip("/")
 
-INTAKE_URL = "https://career-transition-loading.onrender.com"
+INTAKE_URL = "https://career-transition-intake.vercel.app"
 CONTACT_EMAIL = "gitonga@gmail.com"
 
 

@@ -1,4 +1,4 @@
-const INTAKE_URL = "https://career-transition-loading.onrender.com";
+const INTAKE_URL = "https://career-transition-intake.vercel.app";
 const CONTACT_EMAIL = "gitonga@gmail.com";
 
 type Deliverable = {
