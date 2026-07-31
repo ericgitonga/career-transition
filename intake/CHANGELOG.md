@@ -6,6 +6,25 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.21.9] - 2026-07-31
+### Changed
+- Restyled the intake form (`templates/index.html`) to visually match the
+  landing page now that both share one repo. It already used the same
+  brand palette (navy `#1B2A4A`, teal `#0E7C7B`, gold `#C9A84C`) — just on
+  a dark GitHub-style theme with the browser's default sans-serif. Switched
+  `data-bs-theme` to `light`, replaced every dark background/border/text
+  color with light equivalents (white/slate-50 backgrounds, slate-900/600
+  text, matching the landing page's Tailwind slate palette), and added
+  Geist via Google Fonts to match the landing page's font. Kept the
+  Bootstrap accordion structure, `form.js`'s behavior, and the Jinja2
+  template logic completely untouched — CSS/markup only. Verified visually
+  via Playwright screenshots (header, accordion sections, the CV-upload
+  callout box, the CV fallback box, and the submit button) and functionally
+  via the Flask test client (`GET /` still 200, page structure intact).
+  (refs #9)
+
+tag: `intake-v0.21.9`
+
 ## [0.21.8] - 2026-07-30
 ### Removed
 - Removed `render.yaml` and `loading/index.html` — both Render services
