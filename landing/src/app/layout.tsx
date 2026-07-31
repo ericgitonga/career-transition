@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Career Transition Planning — Your next career isn't a guess. It's a plan.",
   description:
-    "A personalised Career Transition Plan built from your CV, your target role, and your timeline. Delivered as a professional PDF in one working day.",
+    "A personalised Career Transition Plan, worked through section by section against your actual CV and target role — not a template. Delivered as a professional PDF.",
 };
 
 export default function RootLayout({
