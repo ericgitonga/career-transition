@@ -87,8 +87,9 @@ const STEPS: Step[] = [
   },
   {
     number: "2",
-    title: "One working day",
-    description: "The plan is built and returned to you as a professional PDF.",
+    title: "It's built by hand",
+    description:
+      "Every section is worked through against your specific answers — not templated, not auto-generated. Delivered as a professional PDF within one working day.",
   },
   {
     number: "3",
@@ -205,8 +206,8 @@ export default function Home() {
             ))}
           </div>
           <p className="mt-10 max-w-2xl text-base italic leading-7 text-slate-600">
-            The output is a polished PDF document — the kind of thing a career strategy
-            consultant charges many times more for.
+            Nine sections, each one worked through against your actual CV and target role —
+            not a five-minute AI summary with your name swapped in. The depth is the point.
           </p>
           <CtaButton className="mt-8" />
         </div>
@@ -267,8 +268,9 @@ export default function Home() {
             ))}
           </div>
           <p className="mt-10 text-base font-medium text-slate-700">
-            No discovery calls that go nowhere. No six-week coaching programmes. One
-            document. One clear path forward.
+            No discovery calls that go nowhere. No six-week coaching programmes. Just one
+            document — but a genuinely thorough one, built section by section against your
+            actual CV, not skimmed together in an afternoon.
           </p>
         </div>
       </section>
@@ -287,8 +289,8 @@ export default function Home() {
               Introductory offer — 50% off
             </span>
             <div className="flex items-baseline gap-3">
-              <span className="text-lg text-slate-400 line-through">KES 15,000</span>
-              <span className="text-4xl font-bold text-[#1B2A4A]">KES 7,500</span>
+              <span className="text-lg text-slate-400 line-through">KES 7,500</span>
+              <span className="text-4xl font-bold text-[#1B2A4A]">KES 3,750</span>
             </div>
             <p className="max-w-md text-sm leading-6 text-slate-600">
               A one-time fee, paid when you submit your intake form.
@@ -329,8 +331,10 @@ export default function Home() {
             Ready to stop guessing and start executing?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600">
-            Send your CV and a job description for the role you want. You&apos;ll have a
-            complete, personalised Career Transition Plan back within one working day.
+            Send your CV and a job description for the role you want, and you&apos;ll get
+            back a complete Career Transition Plan — every section worked through against
+            your specific CV and target role, start to finish. Delivered within one
+            working day.
           </p>
           <CtaButton className="mt-8" />
           <p className="mt-6 text-sm text-slate-500">
