@@ -8,6 +8,7 @@ extras/
 !extras/spike_payment_integration.pdf
 !extras/spike_platform_unification.pdf
 !extras/deepdive_flask_to_vercel.pdf
+!extras/history.pdf
 
 # Private report generators (contain client data or internal audit findings)
 generate_security_pdf.py
