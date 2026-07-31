@@ -3,24 +3,34 @@
 # --dry --json`, which showed Clients/ (real client CVs, personal
 # documents), extras/, .agents/, .claude/, and the private report
 # generators would all otherwise be uploaded to Vercel.
+#
+# This file MUST live at the repo root, not inside intake/, even though
+# the intake Vercel project's Root Directory is set to "intake" --
+# .vercelignore is read relative to the repo root regardless of a
+# project's configured Root Directory (unlike .gitignore, which is
+# relative to wherever the file itself sits). Discovered the hard way: a
+# copy of this file inside intake/ silently failed to exclude anything,
+# including intake/.python-version, which then broke the Python runtime
+# version resolution during a real deploy attempt. Patterns below are
+# prefixed with intake/ accordingly.
 
 # Client folders — never upload client data
-Clients/
+intake/Clients/
 
 # Business docs/audit findings/spike research — not needed at runtime
-extras/
+intake/extras/
 
 # Private report generators (contain client data or internal audit findings)
-generate_security_pdf.py
-generate_feedback_pdf.py
-generate_selfhosting_pdf.py
+intake/generate_security_pdf.py
+intake/generate_feedback_pdf.py
+intake/generate_selfhosting_pdf.py
 
 # Local Claude Code settings and JS-SDK reference skills — irrelevant to
 # this app's runtime, never meant to leave this machine
-.claude/
-.agents/
-skills-lock.json
+intake/.claude/
+intake/.agents/
+intake/skills-lock.json
 
 # Local pyenv version pin (3.11.9) -- conflicts with Vercel's Python
 # runtime, which defaults to 3.12 and expects requires-python==3.12.*.
-.python-version
+intake/.python-version
