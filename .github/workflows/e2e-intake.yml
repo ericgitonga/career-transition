@@ -22,6 +22,7 @@ on:
     paths:
       - "intake/**"
       - ".github/workflows/e2e-intake.yml"
+  workflow_dispatch: {}
 
 jobs:
   e2e:
