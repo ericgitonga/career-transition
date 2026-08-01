@@ -6,6 +6,19 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.3.0] - 2026-08-01
+
+### Changed
+
+- The pain-points copy's "where do I actually begin?" is now a link to the
+  intake form (`INTAKE_URL`), styled italic + underline, giving that line a
+  direct path into the funnel instead of relying solely on the `CtaButton`s
+  elsewhere on the page. (closes #22)
+- Added `__pycache__/`/`*.pyc` to `.gitignore` — the `e2e/` suite is Python
+  but this Next.js project's `.gitignore` had no Python entries.
+
+tag: `v0.3.0`
+
 ## [0.2.0] - 2026-07-29
 
 ### Added
