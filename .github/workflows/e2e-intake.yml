@@ -1,0 +1,69 @@
+name: E2E (intake)
+
+# Gates a PR on the intake app's golden-path E2E suite (intake/e2e/) running
+# against the real Flask dev server on the runner. Path-filtered to
+# intake/** since this is a monorepo shared with the landing/ Next.js app —
+# a change to one app shouldn't trigger the other's CI (see e2e.yml).
+#
+# Unlike landing, this app has a real side effect worth gating on: every
+# submission is supposed to email the consultant via Resend. RESEND_API_KEY
+# was once missing from the Vercel deployment entirely, so every real
+# submission silently skipped that email with no visible failure (see the
+# GitHub issue this test was added to close). test_submission_email.py
+# submits the form for real and asserts the email actually fired, so this
+# job needs a real RESEND_API_KEY secret — SECRET_KEY and
+# RATELIMIT_STORAGE_URI are left unset, since app.py already falls back to
+# an auto-generated key and in-memory rate limiting for a single-process
+# run like this one.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "intake/**"
+      - ".github/workflows/e2e-intake.yml"
+  workflow_dispatch: {}
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: intake
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - name: Install Playwright (Python)
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Start server
+        # Output redirected to a file rather than left to inherit the step's
+        # own stdout: GitHub Actions stops capturing a backgrounded (`&`)
+        # process's output once the step that launched it exits. "Print
+        # server log" below cats this file so it's visible regardless of
+        # outcome.
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          python app.py > /tmp/server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:5000/_health > /dev/null && exit 0
+            sleep 1
+          done
+          echo "Server did not become ready in time" >&2
+          exit 1
+
+      - name: Run E2E suite
+        run: python e2e/run.py
+
+      - name: Print server log
+        if: always()
+        run: cat /tmp/server.log

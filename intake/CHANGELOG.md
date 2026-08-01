@@ -6,6 +6,18 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.22.0] - 2026-08-01
+### Added
+- Added a Playwright E2E suite (`e2e/`) that submits the real intake form
+  and asserts the success message confirms the consultant was emailed —
+  a regression test for the incident where `RESEND_API_KEY` was missing
+  from every Vercel environment, so submissions silently skipped the
+  email step with no visible failure. Wired into a new
+  `.github/workflows/e2e-intake.yml` CI job, path-filtered to `intake/**`,
+  requiring a `RESEND_API_KEY` GitHub Actions secret. (closes #14)
+
+tag: `intake-v0.22.0`
+
 ## [0.21.9] - 2026-07-31
 ### Changed
 - Restyled the intake form (`templates/index.html`) to visually match the
