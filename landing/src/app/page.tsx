@@ -174,7 +174,10 @@ export default function Home() {
             You open a blank document and try to plan your own transition. Twenty minutes
             later you have a list of course names, three tabs open on certifications
             you&apos;re not sure you need, and the same question you started with:{" "}
-            <a href={INTAKE_URL} className="italic underline hover:no-underline">
+            <a
+              href={INTAKE_URL}
+              className="italic font-bold text-[#C9A84C] underline hover:no-underline"
+            >
               where do I actually begin?
             </a>
           </p>
