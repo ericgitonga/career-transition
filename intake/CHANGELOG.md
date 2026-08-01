@@ -6,6 +6,15 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.25.0] - 2026-08-01
+### Added
+- Added `LANDING_URL` and two "Back to the landing page" links in the
+  intake form (`templates/index.html`) — one in the header, one after
+  the submit button — so a client who lands here directly has a way
+  back to the pitch without using the browser back button. (closes #30)
+
+tag: `intake-v0.25.0`
+
 ## [0.24.2] - 2026-08-01
 ### Added
 - Backfilled changelog entry — no code change. Compiled `extras/history.pdf`,
