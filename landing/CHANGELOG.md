@@ -6,6 +6,19 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.3.1] - 2026-08-01
+
+### Changed
+
+- Backfilled changelog entry — no code change. This app's history was
+  relocated into the `career-transition` monorepo as `landing/`, alongside
+  `career-transition-intake`'s history as `intake/`, so both apps now
+  share one git history, one issue tracker, and one PR review surface
+  while staying on separate Vercel projects. Never versioned at the time
+  it happened. (refs #8)
+
+tag: `landing-v0.3.1`
+
 ## [0.3.0] - 2026-08-01
 
 ### Changed
@@ -17,7 +30,13 @@ user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 - Added `__pycache__/`/`*.pyc` to `.gitignore` — the `e2e/` suite is Python
   but this Next.js project's `.gitignore` had no Python entries.
 
-tag: `v0.3.0`
+Tagged `landing-v0.3.0` rather than the bare `v0.3.0` used by `v0.1.0`/
+`v0.2.0` — the bare `v*` namespace turned out to still hold intake's old
+pre-rename tags up through `v0.21.8`, so all landing releases from here
+switch to a `landing-` prefix to avoid colliding with them. Existing
+`v0.1.0`/`v0.2.0` are left as-is.
+
+tag: `landing-v0.3.0`
 
 ## [0.2.0] - 2026-07-29
 

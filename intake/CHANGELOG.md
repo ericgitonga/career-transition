@@ -6,6 +6,17 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.24.1] - 2026-08-01
+### Changed
+- Backfilled changelog entry — no code change. This app's history was
+  relocated into the `career-transition` monorepo as `intake/`, alongside
+  `career-transition`'s (landing's) history as `landing/`, so both apps
+  now share one git history, one issue tracker, and one PR review surface
+  while staying on separate Vercel projects. Never versioned at the time
+  it happened. (refs #8)
+
+tag: `intake-v0.24.1`
+
 ## [0.24.0] - 2026-08-01
 ### Added
 - Added a `.docx` output to the CV-editing workflow (`cv_docx_builder.py`,
