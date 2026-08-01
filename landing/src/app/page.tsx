@@ -174,7 +174,9 @@ export default function Home() {
             You open a blank document and try to plan your own transition. Twenty minutes
             later you have a list of course names, three tabs open on certifications
             you&apos;re not sure you need, and the same question you started with:{" "}
-            <span className="italic">where do I actually begin?</span>
+            <a href={INTAKE_URL} className="italic underline hover:no-underline">
+              where do I actually begin?
+            </a>
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
             That&apos;s not a you problem. That&apos;s what happens when you try to plan a
