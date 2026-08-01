@@ -6,6 +6,17 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.4.0] - 2026-08-01
+
+### Changed
+
+- The pain-points copy's "where do I actually begin?" link is now bold and
+  colored `#C9A84C` — the same gold as the "Start My Plan" button's
+  background — so it reads as a CTA within the paragraph rather than just
+  an italicized link. (closes #27)
+
+tag: `landing-v0.4.0`
+
 ## [0.3.1] - 2026-08-01
 
 ### Changed
