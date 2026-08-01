@@ -327,6 +327,7 @@ _meta  = _S("Met", fontSize=8,   textColor=MGRY,  fontName="Helvetica",     lead
 _ct    = _S("CT",  fontSize=22,  textColor=WHITE, fontName="Helvetica-Bold", leading=28, alignment=TA_CENTER)
 _cs    = _S("CS",  fontSize=14,  textColor=GOLD,  fontName="Helvetica-Bold", leading=20, alignment=TA_CENTER)
 _cn    = _S("CN",  fontSize=18,  textColor=WHITE, fontName="Helvetica-Bold", leading=24, alignment=TA_CENTER)
+_cv_flag = _S("CVF", fontSize=10, textColor=NAVY, fontName="Helvetica-Bold", leading=14, alignment=TA_CENTER)
 
 
 def _banner(text):
@@ -474,8 +475,28 @@ def build_pdf(d, path):
         ("RIGHTPADDING",  (0, 0), (-1, -1), 20),
     ]))
     story += [cover, Spacer(1, 0.4*cm),
-              HRFlowable(width=W, thickness=2, color=GOLD),
-              Spacer(1, 0.8*cm)]
+              HRFlowable(width=W, thickness=2, color=GOLD)]
+
+    if d.get("wants_cv_edit"):
+        flag = Table(
+            [[Paragraph(
+                "★ CV EDIT REQUESTED — this client also wants their CV condensed/"
+                "reframed as a separate document. See SKILL.md's “CV Editing (On "
+                "Client Request)” workflow.",
+                _cv_flag,
+            )]],
+            colWidths=[W],
+        )
+        flag.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, -1), GOLD),
+            ("TOPPADDING",    (0, 0), (-1, -1), 8),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 14),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 14),
+        ]))
+        story.append(flag)
+
+    story.append(Spacer(1, 0.8*cm))
 
     sections = [
         ("Section 1 — Personal Information", [
@@ -539,6 +560,7 @@ def build_pdf(d, path):
             ("Has existing portfolio work?",                          d.get("portfolio_has_work")),
             ("Portfolio links",                                       d.get("portfolio_links")),
             ("Anything else the consultant should know",              d.get("anything_else")),
+            ("Wants CV condensed/reframed as separate document",      "Yes" if d.get("wants_cv_edit") else "No"),
         ]),
     ]
 
@@ -583,6 +605,7 @@ def send_email(attachment_path, attachment_name, data, has_uploads: bool):
     location = _sanitize(data.get("city_country", "—"))
     timeline = _sanitize(data.get("timeline", "—"))
     target   = _sanitize(data.get("target_domain", "—"))
+    wants_cv_edit = bool(data.get("wants_cv_edit"))
 
     body = (
         f"New career transition onboarding submission received.\n\n"
@@ -594,16 +617,24 @@ def send_email(attachment_path, attachment_name, data, has_uploads: bool):
         f"Full intake responses are in the attached ZIP."
         + ("\nSupporting documents (CV, JD, etc.) are bundled in there too."
            if has_uploads else "")
+        + ("\n\n★ CV EDIT REQUESTED — this client also wants their CV "
+           "condensed/reframed as a separate document. See SKILL.md's "
+           "“CV Editing (On Client Request)” workflow."
+           if wants_cv_edit else "")
     )
 
     with open(attachment_path, "rb") as f:
         content = list(f.read())
 
+    subject = (f"Career Transition Intake — {name} — "
+               f"{datetime.now().strftime('%d %b %Y')}")
+    if wants_cv_edit:
+        subject = f"[CV EDIT] {subject}"
+
     resend.Emails.send({
         "from":        os.environ.get("FROM_EMAIL", "onboarding@resend.dev"),
         "to":          [RECIPIENT],
-        "subject":     (f"Career Transition Intake — {name} — "
-                        f"{datetime.now().strftime('%d %b %Y')}"),
+        "subject":     subject,
         "text":        body,
         "attachments": [{"filename": attachment_name, "content": content}],
     })
@@ -732,6 +763,7 @@ def submit():
         portfolio_has_work=_clip(request.form.get("portfolio_has_work"), 10),
         portfolio_links=[_clip(l.strip(), 500) for l in request.form.getlist("portfolio_links") if l.strip()],
         anything_else=_clip(request.form.get("anything_else"), 5000),
+        wants_cv_edit=bool(request.form.get("wants_cv_edit")),
         current_title=_clip(request.form.get("current_title"), 200),
         current_industry=_clip(request.form.get("current_industry"), 200),
         years_experience=_clip(request.form.get("years_experience"), 100),
