@@ -18,6 +18,9 @@
     .form-header p  { color:var(--gold); margin:0; }
     .form-header .subtext { color:#cbd5e1; }
     .form-header .version { color:#7a8bab; font-size:.7rem; margin-top:.75rem; }
+    .back-link { display:inline-block; color:var(--gold); font-size:.85rem; margin-bottom:1rem;
+                 text-decoration:none; }
+    .back-link:hover { color:#dab866; text-decoration:underline; }
 
     .accordion-item  { background:#ffffff; border-color:#e2e8f0; }
     .accordion-body  { background:#ffffff; }
@@ -58,6 +61,7 @@
 <div class="container py-4" style="max-width:860px;">
 
   <div class="form-header">
+    <a href="{{ landing_url }}" class="back-link">&larr; Back to the landing page</a>
     <h1>Your next career isn&rsquo;t a guess. It&rsquo;s a plan.</h1>
     <p>Send your CV, your target role, and any notes on where you&rsquo;d like to go — we&rsquo;ll turn it into your personalised Career Transition Plan and have it back to you within one working day.</p>
     <p class="mt-1 subtext" style="font-size:.85rem;">
@@ -604,6 +608,10 @@
   </div>
 
   </form>
+
+  <p class="text-center mt-4">
+    <a href="{{ landing_url }}" class="back-link">&larr; Back to the landing page</a>
+  </p>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
