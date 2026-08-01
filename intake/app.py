@@ -62,6 +62,7 @@ from reportlab.platypus import (
 app = Flask(__name__, static_folder="public", static_url_path="")
 RECIPIENT = "gitonga@gmail.com"
 APP_VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
+LANDING_URL = "https://career-transition-psi.vercel.app"
 
 # ── S-09: Secret key ──────────────────────────────────────────────────────────
 # In production SECRET_KEY is set as a fixed Vercel environment variable —
@@ -667,7 +668,9 @@ def index():
     Returns:
         A Flask Response containing the rendered HTML form (HTTP 200).
     """
-    return render_template("index.html", recipient=RECIPIENT, app_version=APP_VERSION)
+    return render_template(
+        "index.html", recipient=RECIPIENT, app_version=APP_VERSION, landing_url=LANDING_URL
+    )
 
 
 @app.route("/submit", methods=["POST"])
