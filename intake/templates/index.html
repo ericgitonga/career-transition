@@ -308,6 +308,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Financial runway</label>
+            <div class="form-text mb-2">How long you could cover your expenses if you stopped earning today.</div>
             {% for v in ["Less than 3 months","3–6 months","6–12 months","12–18 months","18+ months","Currently employed — no runway needed"] %}
             <div class="form-check"><input class="form-check-input" type="radio" name="financial_runway" value="{{ v }}" id="fr{{ loop.index }}"><label class="form-check-label" for="fr{{ loop.index }}">{{ v }}</label></div>
             {% endfor %}
