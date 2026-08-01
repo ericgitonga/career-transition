@@ -6,6 +6,16 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.25.1] - 2026-08-01
+### Fixed
+- Added a `form-text` hint under "Financial runway" ("How long you could
+  cover your expenses if you stopped earning today.") — a client asked
+  what the label meant. Every other non-obvious question already had a
+  self-explanatory hint or full-sentence options; this was the one gap.
+  (closes #33)
+
+tag: `intake-v0.25.1`
+
 ## [0.25.0] - 2026-08-01
 ### Added
 - Added `LANDING_URL` and two "Back to the landing page" links in the
