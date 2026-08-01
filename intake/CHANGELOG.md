@@ -6,6 +6,18 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.24.0] - 2026-08-01
+### Added
+- Added a `.docx` output to the CV-editing workflow (`cv_docx_builder.py`,
+  wired into `generate_cv.py`), alongside the existing PDF. Both formats
+  are built from the same `cv_data.py` content — the `.docx` engine
+  reimplements `cv_builder.py`'s visual language natively in python-docx
+  (borderless layout tables for the two-column competencies/experience
+  headers, a real bordered table only for the one genuinely tabular
+  section) since ReportLab and python-docx don't share primitives. Clients
+  requesting a CV edit now get both `[initials]_CV.pdf` and
+  `[initials]_CV.docx` by default. (closes #19)
+
 ## [0.23.0] - 2026-08-01
 ### Added
 - Added a shared CV-editing engine (`cv_builder.py` + `generate_cv.py`,
