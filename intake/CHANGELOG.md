@@ -6,6 +6,23 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.23.0] - 2026-08-01
+### Added
+- Added a shared CV-editing engine (`cv_builder.py` + `generate_cv.py`,
+  mirroring `report_builder.py`/`generate_plan.py`'s pattern) for producing
+  a condensed, ATS-safe standalone CV on client request — content lives in
+  `Clients/[Name]/cv_data.py`, documented in `SKILL.md`'s new "CV Editing
+  (On Client Request)" section.
+- Added a "wants CV condensed/reframed" checkbox to the intake form
+  (Section 9), so this request is a real form field instead of something
+  the consultant has to notice buried in free text. When ticked, the
+  generated intake PDF carries a gold "CV EDIT REQUESTED" banner on its
+  cover page and the consultant notification email's subject is prefixed
+  `[CV EDIT]`, so it's visible wherever the consultant first sees the
+  submission. (closes #17)
+- Updated the landing page's "What you get" section to mention the CV
+  condensing/reframing add-on.
+
 ## [0.22.0] - 2026-08-01
 ### Added
 - Added a Playwright E2E suite (`e2e/`) that submits the real intake form

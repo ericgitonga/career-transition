@@ -209,6 +209,11 @@ export default function Home() {
             Nine sections, each one worked through against your actual CV and target role —
             not a five-minute AI summary with your name swapped in. The depth is the point.
           </p>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600">
+            Want your CV itself condensed and reframed for your target role, alongside the
+            plan? Tick the box on the intake form and it&apos;s handled with the same care —
+            no separate reformatting service, no extra back-and-forth.
+          </p>
           <CtaButton className="mt-8" />
         </div>
       </section>
