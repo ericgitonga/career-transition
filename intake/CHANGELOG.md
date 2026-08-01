@@ -6,6 +6,19 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.24.2] - 2026-08-01
+### Added
+- Backfilled changelog entry — no code change. Compiled `extras/history.pdf`,
+  a complete historical record of both repos' independent life before the
+  merge (every commit, every issue with its full comment thread, every PR
+  with reviews, and every release, for both `career-transition-intake` and
+  `career-transition`/landing), so the archived `career-transition-intake`
+  GitHub repo and local `.pre-merge-backup` directories can eventually be
+  deleted without losing anything. Never versioned at the time it happened.
+  (refs #12)
+
+tag: `intake-v0.24.2`
+
 ## [0.24.1] - 2026-08-01
 ### Changed
 - Backfilled changelog entry — no code change. This app's history was
