@@ -67,6 +67,8 @@ def render_header(client, story):
     contact_bits = [client["location"], client["email"]]
     if client.get("languages_line"):
         contact_bits.append(client["languages_line"])
+    if client.get("links"):
+        contact_bits.extend(client["links"])
     story.append(Paragraph("  ·  ".join(contact_bits), CV_ST["contact"]))
     story.append(Spacer(1, 8))
 

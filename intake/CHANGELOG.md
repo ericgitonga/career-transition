@@ -6,6 +6,16 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.26.0] - 2026-08-02
+### Added
+- Added an optional `links` field to the CV engine's `client` dict schema
+  (`cv_builder.py`, `cv_docx_builder.py`) — a list of portfolio/Behance/
+  LinkedIn/etc. URLs rendered in the CV contact line after `languages_line`.
+  A client asked for their portfolio link to appear in the CV itself rather
+  than folded into the summary paragraph. (closes #36)
+
+tag: `intake-v0.26.0`
+
 ## [0.25.1] - 2026-08-01
 ### Fixed
 - Added a `form-text` hint under "Financial runway" ("How long you could
