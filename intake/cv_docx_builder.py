@@ -120,6 +120,8 @@ def render_header(doc, client):
     contact_bits = [client["location"], client["email"]]
     if client.get("languages_line"):
         contact_bits.append(client["languages_line"])
+    if client.get("links"):
+        contact_bits.extend(client["links"])
     p2 = doc.add_paragraph()
     p2.paragraph_format.space_after = Pt(8)
     _run(p2, "  ·  ".join(contact_bits), size=9, color=GRAY)
