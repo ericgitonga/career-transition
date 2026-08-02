@@ -346,7 +346,7 @@ def build_story(s):
         [Paragraph("Client Onboarding Form", s["subtitle"])],
         [Paragraph("Design Process &amp; Project Report", s["subtitle"])],
         [Spacer(1, 0.4 * cm)],
-        [Paragraph("Prepared by: Eric Gitonga  ·  July 2026", s["meta"])],
+        [Paragraph("Prepared by: Eric Gitonga  ·  August 2026", s["meta"])],
         [Paragraph("Confidential — Internal Reference Document", s["meta"])],
     ], colWidths=[INNER_W])
     cover.setStyle(TableStyle([
@@ -363,17 +363,22 @@ def build_story(s):
     story.append(Paragraph(
         "This document records the complete design process, technical decision-making, and "
         "iterative development journey that produced the Career Transition client onboarding "
-        "form — a professionally branded, dark-themed web application that collects structured "
-        "intake responses from clients, compiles them into a PDF, and delivers the document "
-        "automatically to the consultant by email.",
+        "form — a professionally branded web application, styled in a light theme that shares "
+        "the Career Transition Planning landing page's visual identity, that collects "
+        "structured intake responses from clients, compiles them into a PDF, and delivers the "
+        "document automatically to the consultant by email.",
         s["body"],
     ))
     story.append(Paragraph(
         "The project moved through several platform and technology iterations before arriving "
-        "at its final architecture: a Python Flask application served by Gunicorn, hosted on "
-        "Render, with email delivery via the Resend transactional API. The final product "
-        "requires zero manual intervention from the consultant once deployed — a client "
-        "completes the form, clicks Submit, and the PDF lands in the consultant's inbox.",
+        "at its current architecture: a Python Flask application running on Vercel's Fluid "
+        "Compute, with email delivery via the Resend transactional API and Redis-backed rate "
+        "limiting (Upstash) in production. Since mid-2026 the app has lived in the "
+        "ericgitonga/career-transition monorepo as intake/, alongside a Next.js marketing site "
+        "(landing/) sharing the same git history and issue tracker, while the two apps continue "
+        "to deploy as separate Vercel projects. The final product still requires zero manual "
+        "intervention from the consultant once deployed — a client completes the form, clicks "
+        "Submit, and the PDF lands in the consultant's inbox.",
         s["body"],
     ))
     story.append(Paragraph(
@@ -388,13 +393,15 @@ def build_story(s):
         s["body"],
     ))
     story.append(Paragraph(
-        "A subsequent round of user testing identified that Render's built-in cold-start "
-        "loading screen — displaying server log output to the client — was confusing and "
-        "inappropriate for a professional service. A companion Render Static Site was added "
-        "as the canonical client-facing entry point: a branded loading page with an animated "
-        "progress bar and estimated countdown that polls the Flask app and redirects "
-        "automatically once it is ready. User-facing error messaging and startup behaviour "
-        "were simultaneously formalised in SKILL.md as first-class design principles.",
+        "A subsequent round of user testing on the original Render deployment found that "
+        "Render's built-in cold-start loading screen — displaying server log output to the "
+        "client — was confusing and inappropriate for a professional service; a companion "
+        "Render Static Site was added at the time as a branded loading page to work around it. "
+        "That workaround, along with Render itself, was retired during the Flask-to-Vercel "
+        "migration: Vercel's Fluid Compute has sub-second cold starts, so the problem the "
+        "loading page solved no longer exists on the current infrastructure. User-facing error "
+        "messaging and startup behaviour were formalised in SKILL.md as first-class design "
+        "principles at the time and remain in force today.",
         s["body"],
     ))
     story.append(Spacer(1, 0.2 * cm))
@@ -551,21 +558,25 @@ def build_story(s):
     story.append(PageBreak())
     story.append(KeepTogether([section_header("4. Technical Architecture", s), Spacer(1, 0.2 * cm)]))
 
-    story.append(sub_header("Backend — Flask + Gunicorn", s))
+    story.append(sub_header("Backend — Flask", s))
     story.append(Spacer(1, 0.15 * cm))
     story.append(Paragraph(
-        "Flask was chosen for its simplicity, minimal footprint, and zero compatibility "
-        "issues on Render. Gunicorn serves as the production WSGI server, started with "
-        "the command specified in render.yaml:",
+        "Flask was chosen for its simplicity, minimal footprint, and (once rewritten from "
+        "the earlier Gradio prototype) zero framework compatibility issues. On Render, "
+        "Gunicorn served as the production WSGI server via render.yaml's start command; on "
+        "Vercel, vercel.json's \"framework\": \"flask\" setting lets Vercel auto-detect and run "
+        "app.py directly as a Serverless/Fluid Compute Function, with no WSGI server command "
+        "of its own to configure. gunicorn remains a pinned dependency for local parity, but "
+        "the current production deployment does not invoke it.",
         s["body"],
     ))
-    story.append(Paragraph("gunicorn app:app --bind 0.0.0.0:$PORT", s["code"]))
     story.append(Spacer(1, 0.15 * cm))
     story.append(Paragraph(
         "The application has two routes: GET / serves the intake form; POST /submit "
         "processes the submission, generates the PDF, attempts email delivery, and "
         "returns the PDF as a file download. The email outcome (sent / failed / skipped) "
-        "is communicated back to the browser via an X-Email-Status response header.",
+        "is communicated back to the browser via an X-Email-Status response header. A "
+        "third route, GET /_health, is a plain liveness probe.",
         s["body"],
     ))
 
@@ -587,47 +598,47 @@ def build_story(s):
         "Email is sent via the Resend transactional API using the resend Python SDK. "
         "Resend operates over HTTPS (port 443) rather than SMTP (port 587), making it "
         "immune to port-blocking policies on cloud hosting platforms. The API key is "
-        "stored as a Render environment variable and is never present in the codebase. "
+        "stored as a Vercel environment variable and is never present in the codebase. "
         "All uploaded documents are attached alongside the generated PDF.",
         s["body"],
     ))
 
-    story.append(sub_header("Hosting — Render", s))
+    story.append(sub_header("Hosting — Vercel", s))
     story.append(Spacer(1, 0.15 * cm))
     story.append(Paragraph(
-        "Render's Python web service provides a permanent public URL, automatic TLS, "
-        "and GitHub-triggered continuous deployment at no cost on the free tier. "
-        "render.yaml codifies the service configuration so the hosting setup is "
-        "reproducible and version-controlled.",
-        s["body"],
-    ))
-
-    story.append(sub_header("Loading Page — Render Static Site", s))
-    story.append(Spacer(1, 0.15 * cm))
-    story.append(Paragraph(
-        "Render's free-tier web service spins down after 15 minutes of inactivity and "
-        "displays its own 'APPLICATION LOADING' screen — showing server log output — while "
-        "the instance restarts. This screen is served by Render's reverse proxy before "
-        "gunicorn binds to the port and cannot be replaced from within application code.",
+        "The app now runs on Vercel's Fluid Compute, migrated from Render across a series of "
+        "small, individually-verified steps (see the Key Design Decisions and Development "
+        "Phases sections below): vercel.json (\"framework\": \"flask\", capping maxDuration at "
+        "60s), the static asset move from static/ to public/, the MAX_CONTENT_LENGTH cut from "
+        "10 MB to 4 MB to stay under Vercel Functions' hard 4.5 MB request-body limit, and "
+        "Redis-backed rate-limit storage (RATELIMIT_STORAGE_URI, an Upstash rediss:// URL) so "
+        "Fluid Compute's auto-scaling doesn't give every warm instance its own in-memory "
+        "counter. Vercel provides a permanent public URL, automatic TLS, and GitHub-triggered "
+        "continuous deployment; vercel.json codifies the small amount of configuration Vercel's "
+        "zero-config Flask detection doesn't infer on its own, so the hosting setup stays "
+        "reproducible and version-controlled, the same role render.yaml used to play.",
         s["body"],
     ))
     story.append(Paragraph(
-        "To replace this experience, a companion Render Static Site (career-transition-loading) "
-        "was added alongside the Flask web service in render.yaml. Static sites on Render have "
-        "no cold start and serve files instantly. The loading page (loading/index.html) shows a "
-        "branded dark-theme waiting screen with a spinner and a simple 'Preparing your form...' "
-        "tagline — no visible countdown or progress bar, following the understated style of "
-        "similar branded loading screens (e.g. PDF Drive). It polls the Flask app's /_health "
-        "endpoint every three seconds via the Fetch API and redirects automatically on a 200 "
-        "response. The canonical client-facing URL is the loading page; the Flask app URL is "
-        "never shared directly.",
+        "Historically, Render's free-tier web service spun down after 15 minutes of "
+        "inactivity and displayed its own 'APPLICATION LOADING' screen — showing server log "
+        "output — while the instance restarted, served by Render's reverse proxy before "
+        "gunicorn bound to the port, and impossible to replace from within application code. "
+        "A companion Render Static Site (career-transition-loading) was added at the time as "
+        "a branded, dark-theme waiting page that polled the Flask app's /_health endpoint and "
+        "redirected once it returned 200 — the canonical client-facing URL, so the Flask app's "
+        "own URL was never shared directly.",
         s["body"],
     ))
     story.append(Paragraph(
-        "The /_health endpoint returns {\"status\":\"ok\"} with an Access-Control-Allow-Origin "
-        "header scoped to the loading site's origin, configurable via the LOADING_SITE_ORIGIN "
-        "environment variable. This permits the cross-origin Fetch poll without relaxing CORS "
-        "across the rest of the application.",
+        "That entire workaround was retired once the Vercel migration was verified and cut "
+        "over: Vercel's Fluid Compute has sub-second cold starts, so there is no server-log "
+        "loading screen to hide from clients in the first place. render.yaml and "
+        "loading/index.html were deleted, both Render services were decommissioned, and the "
+        "landing page's call-to-action now points straight at the Flask app's own Vercel URL. "
+        "The /_health endpoint is kept as a plain liveness probe for general monitoring; its "
+        "CORS headers, which existed solely for the loading page's cross-origin polling, were "
+        "removed along with everything else Render-specific.",
         s["body"],
     ))
 
@@ -641,12 +652,20 @@ def build_story(s):
     for item in [
         "<b>CSRF tokens (Flask-WTF CSRFProtect)</b> — validated on every POST before any "
         "handler logic runs; requests without a valid server-issued token are rejected with HTTP 400",
-        "<b>Upload size cap (MAX_CONTENT_LENGTH = 10 MB)</b> — enforced at the Flask framework "
-        "level; oversized requests return HTTP 413 before reaching route code",
+        "<b>Upload size cap (MAX_CONTENT_LENGTH = 4 MB)</b> — enforced at the Flask framework "
+        "level; oversized requests return HTTP 413 before reaching route code. Cut down from "
+        "10 MB during the Vercel migration to stay under Vercel Functions' hard 4.5 MB request "
+        "body limit — real submissions to date top out around 450 KB per file, so the lower "
+        "cap costs nothing in practice",
         "<b>File extension whitelist (_safe_suffix())</b> — only .pdf, .doc, .docx, .txt, .jpg, "
         ".jpeg, .png are accepted; any other extension returns HTTP 400 before the file is written",
-        "<b>Rate limiting (Flask-Limiter)</b> — /submit throttled to 5 requests/minute and "
-        "20/hour per IP to prevent Resend quota exhaustion and gunicorn saturation",
+        "<b>Rate limiting (Flask-Limiter, Redis/Upstash-backed in production)</b> — /submit "
+        "throttled to 5 requests/minute and 20/hour per IP to prevent Resend quota exhaustion "
+        "and Function saturation. storage_uri defaults to Flask-Limiter's own in-memory store, "
+        "used only as a local/CI fallback; production sets RATELIMIT_STORAGE_URI to an Upstash "
+        "Redis rediss:// URL so every one of Fluid Compute's auto-scaled concurrent instances "
+        "shares one counter instead of silently multiplying each limit by however many "
+        "instances happen to be warm",
         "<b>HTTP security headers (@after_request hook)</b> — every response carries "
         "X-Frame-Options: DENY, X-Content-Type-Options: nosniff, a strict Content-Security-Policy, "
         "and Referrer-Policy: strict-origin-when-cross-origin",
@@ -662,10 +681,11 @@ def build_story(s):
         "is built regardless of whether an exception occurred",
         "<b>Structured submission logging (app.logger)</b> — every submission is logged with "
         "name, email, target domain, upload count, and email outcome for audit and abuse detection",
-        "<b>Pinned dependencies</b> — all six packages pinned to known-good versions in "
-        "requirements.txt; no silent supply-chain updates on each Render deploy",
-        "<b>Static JS (static/form.js)</b> — all JavaScript served from a separate file, enabling "
-        "a strict script-src CSP with no 'unsafe-inline'",
+        "<b>Pinned dependencies</b> — all packages pinned to known-good versions in "
+        "requirements.txt; no silent supply-chain updates on each deploy",
+        "<b>Static JS (public/form.js)</b> — all JavaScript served from a separate file "
+        "under public/ (moved from static/ for Vercel's CDN to serve directly, bypassing the "
+        "Function), enabling a strict script-src CSP with no 'unsafe-inline'",
     ]:
         story.append(bullet(item, s))
     story.append(Spacer(1, 0.1 * cm))
@@ -754,21 +774,42 @@ def build_story(s):
     # ── 6. UI/UX Design ───────────────────────────────────────────────────────
     story.append(KeepTogether([section_header("6. UI / UX Design", s), Spacer(1, 0.2 * cm)]))
     story.append(Paragraph(
-        "The interface was built with Bootstrap 5.3 using the data-bs-theme='dark' "
-        "attribute for baseline dark-mode component styling, augmented with custom CSS "
-        "to match the practice's brand identity.",
+        "The interface was built with Bootstrap 5.3, originally using the data-bs-theme='dark' "
+        "attribute for baseline dark-mode component styling. As part of the monorepo merge "
+        "with the Next.js landing page (CHANGELOG v0.21.9), the form was restyled to "
+        "data-bs-theme='light' with a white background, Bootstrap's slate palette for text and "
+        "borders, and Geist (loaded via Google Fonts) in place of the browser's default "
+        "sans-serif — so the intake form now visually matches the landing page's typography "
+        "and light register instead of standing apart from it in a dark, GitHub-style theme. "
+        "The brand palette itself (navy / teal / gold) is unchanged from the original dark "
+        "theme; only the backgrounds, borders, body text colour, and font changed.",
         s["body"],
     ))
 
     story.append(Paragraph(b("Colour palette:"), s["h3"]))
     for item in [
-        "<b>Navy #1B2A4A</b> — primary background for banners, accordion headers, and the cover block",
-        "<b>Teal #0E7C7B</b> — interactive elements: submit button, focus rings, sub-headings",
-        "<b>Gold #C9A84C</b> — accent colour for form labels and decorative rules",
-        "<b>Body #0d1117</b> — page background (deep dark, matching the GitHub dark theme register)",
-        "<b>Panel #161b22</b> — accordion item backgrounds, distinct from page without harshness",
+        "<b>Navy #1B2A4A</b> — form-header background, accordion-button active state, and the "
+        "cover block; also the primary heading colour (form-label, form-header text) on the "
+        "light body",
+        "<b>Teal #0E7C7B</b> — interactive elements: submit button, focus rings and box-shadow, "
+        "checked form-check inputs, the hours-per-week range value",
+        "<b>Gold #C9A84C</b> — accent colour: form-header tagline, the numbered-badge circles "
+        "beside field labels, back-to-landing link, decorative rules",
+        "<b>Body #ffffff</b> — page background, white rather than the former deep-dark #0d1117",
+        "<b>Body text #0f172a</b> (slate-900) — primary text colour, replacing the former "
+        "near-white text used against the dark background",
+        "<b>Secondary text #64748b</b> (slate-500) — form-text hints and muted copy",
+        "<b>Borders #cbd5e1 / #e2e8f0</b> (slate-300/200) — input borders, accordion-item "
+        "borders, and horizontal rules, replacing the former dark hairline borders",
     ]:
         story.append(bullet(item, s))
+    story.append(Paragraph(
+        "Font: Geist (weights 400-700) via Google Fonts, matching the landing page's "
+        "typography — chosen specifically so the two apps in the monorepo read as one "
+        "product to a client who moves from the marketing site straight into the intake "
+        "form, rather than as two visually unrelated experiences stitched together.",
+        s["note"],
+    ))
 
     story.append(Paragraph(b("Form structure:"), s["h3"]))
     story.append(Paragraph(
@@ -908,10 +949,22 @@ def build_story(s):
          "Flask is the thinnest viable option: one file, two routes, no framework magic. "
          "It eliminates the compatibility fragility that plagued the Gradio implementation "
          "while keeping the codebase easy to maintain and extend."),
-        ("Bootstrap 5 dark theme",
-         "Using data-bs-theme='dark' on the root HTML element gives Bootstrap's component "
-         "library an appropriate baseline in dark mode, reducing the amount of custom CSS "
-         "needed while keeping all interactive states (focus, hover, validation) consistent."),
+        ("Bootstrap 5, restyled from dark to light theme for monorepo visual identity",
+         "The form originally used data-bs-theme='dark' to give Bootstrap's component library "
+         "an appropriate dark-mode baseline with minimal custom CSS. Once the intake app and "
+         "the landing page were folded into one monorepo (CHANGELOG v0.21.9, refs #9), keeping "
+         "the intake form on a dark, GitHub-style theme while the landing page used a light, "
+         "Tailwind-slate design meant a client clicking through from the pitch to the form "
+         "landed on a visually unrelated page. The form was switched to data-bs-theme='light', "
+         "every dark background/border/text colour was replaced with a light equivalent "
+         "matching the landing page's own slate palette, and Geist was added via Google Fonts "
+         "to match the landing page's typography. The navy/teal/gold brand palette itself did "
+         "not change — only the theme it sits on top of. CSS and markup only: form.js's "
+         "behaviour and the Jinja2 template logic were left untouched, and the change was "
+         "verified both visually (Playwright screenshots of the header, each accordion "
+         "section, the CV-upload and CV-fallback callouts, and the submit button) and "
+         "functionally (the Flask test client confirming GET / still returns 200 with the "
+         "page structure intact)."),
         ("X-Email-Status response header",
          "Returning email outcome in a response header rather than the response body allows "
          "the PDF to be streamed as the primary response payload while still communicating "
@@ -930,12 +983,22 @@ def build_story(s):
          "the CSP blocks all inline execution. Style-src retains 'unsafe-inline' because "
          "Bootstrap uses inline style attributes for accordion height animations — styles "
          "are far less dangerous than scripts."),
-        ("In-memory rate limiting for single-instance deployment",
-         "Flask-Limiter defaults to in-memory storage for tracking request counts, which is "
-         "appropriate for a single-worker Render free-tier deployment. Request counts are "
-         "per-process and reset on restart — acceptable given the low traffic profile of a "
-         "private coaching intake form. A Redis backend would be required if the application "
-         "were scaled to multiple workers, and is noted as a future upgrade path."),
+        ("Redis-backed rate limiting in production; in-memory storage is now the dev/CI fallback",
+         "Flask-Limiter defaults to in-memory storage for tracking request counts, which was "
+         "appropriate for the original single-worker Render free-tier deployment: request "
+         "counts are per-process and reset on restart, acceptable given the low traffic "
+         "profile of a private coaching intake form. That stopped being true on Vercel: Fluid "
+         "Compute's auto-scaling means each concurrent instance would otherwise keep its own "
+         "in-memory counter, silently multiplying every limit below by however many instances "
+         "happen to be warm. RATELIMIT_STORAGE_URI is now set in production to a rediss:// URL "
+         "for an Upstash Redis database (provisioned via the Vercel Marketplace), giving every "
+         "instance one shared counter; the env var still defaults to Flask-Limiter's own "
+         "\"memory://\" when unset, which is what local development and the CI E2E job run "
+         "against, not a hypothetical future upgrade path but the actual dev/CI fallback today. "
+         "Getting the connection string is a manual step: Vercel's own Marketplace docs for "
+         "Upstash only surface a REST endpoint for the JS @upstash/redis client, not the "
+         "standard redis://⁄rediss:// string Flask-Limiter needs — that has to be copied "
+         "from the Upstash console's own \"Connect\" tab instead."),
         ("Companion static loading site for cold-start UX",
          "Render's free-tier instances display a server-log loading screen during cold starts — "
          "output that is confusing and inappropriate for a client-facing professional service. "
@@ -1146,6 +1209,51 @@ def build_story(s):
          "gitignored; this one only ever held project process narrative that was private by "
          "inherited convention, not by content. Its output, extras/design_process.pdf, stays "
          "gitignored as a generated artefact -- only the generator script is now public."),
+        ("Flask-to-Vercel migration, done as nine small verified steps rather than one cutover",
+         "Render remained functionally adequate, but Vercel offered materially faster cold "
+         "starts (sub-second on Fluid Compute versus Render free-tier's multi-second spin-up, "
+         "the entire reason the loading-page workaround existed in the first place) and put "
+         "the app on the same platform as the landing page it now ships alongside. Rather than "
+         "cutting over in one commit, the migration (#38) was staged: vercel.json first with "
+         "just a maxDuration cap (no effect while still on Render); MAX_CONTENT_LENGTH lowered "
+         "and the static asset moved to public/ next, both harmless on Render too; then "
+         "RATELIMIT_STORAGE_URI made configurable for Redis without yet requiring it; then a "
+         "real preview-deployment smoke test caught that an explicit functions block in "
+         "vercel.json silently disabled Vercel's zero-config Flask auto-detection (build "
+         "succeeded, every route 404'd) -- replaced with the simpler \"framework\": \"flask\" "
+         "setting and re-verified end to end against the actual Vercel runtime, not just docs. "
+         "Only once every step was independently confirmed working were render.yaml, "
+         "loading/index.html, and both Render services actually deleted. The trade-off "
+         "accepted going in was losing Render's zero-maintenance free tier for a platform "
+         "requiring a paid Upstash Redis add-on for correct rate limiting at scale -- judged "
+         "worthwhile for the cold-start improvement and the operational simplicity of one "
+         "platform for both apps in the monorepo."),
+        ("Monorepo merge: one repo for intake and landing, not two",
+         "The standalone career-transition-intake repo was folded into ericgitonga/career-"
+         "transition as intake/, alongside the landing page's own history as landing/ (refs "
+         "#8), with a full historical record of both repos' independent commits, issues, PRs, "
+         "and releases compiled into extras/history.pdf first so nothing was lost when the "
+         "old repo was eventually archived (refs #12). The two apps share one git history, "
+         "one issue tracker, and one PR review surface, but keep separate Vercel projects and "
+         "separate deploy pipelines (see the path-filtered e2e.yml / e2e-intake.yml GitHub "
+         "Actions workflows) -- a client-facing form and a marketing site have different "
+         "release cadences and different stakeholders reviewing changes, and merging the repos "
+         "was about shared context and consistent branding, not about coupling their release "
+         "schedules together."),
+        ("A shared CV-editing engine, mirroring report_builder.py's pattern",
+         "Clients occasionally ask for their CV itself to be condensed or reframed as a "
+         "separate deliverable, not folded into the transition plan. cv_builder.py + "
+         "generate_cv.py (refs #17) reuse the same pattern report_builder.py established for "
+         "plans: content lives in a client's own cv_data.py, a thin CLI does the rendering, and "
+         "no per-client ReportLab code is needed. A \"wants CV condensed/reframed\" checkbox in "
+         "the intake form's Document Uploads section makes the request a real form field -- "
+         "flagged with a gold cover-page banner on the generated intake PDF and a [CV EDIT] "
+         "subject-line prefix on the consultant notification email -- instead of something the "
+         "consultant has to notice buried in free text. cv_docx_builder.py (refs #19) added a "
+         ".docx output alongside the PDF from the same cv_data.py content, reimplementing "
+         "cv_builder.py's visual language natively in python-docx since ReportLab and "
+         "python-docx share no common primitives; clients requesting a CV edit now receive "
+         "both [initials]_CV.pdf and [initials]_CV.docx by default."),
     ]
     for title, body in decisions:
         story.append(Paragraph(b(title), s["h3"]))
@@ -1205,13 +1313,22 @@ def build_story(s):
         ["Round 14 — Shared report_builder.py engine", "Extracted the ~250 lines of identical ReportLab boilerplate duplicated at the top of every client's generate_plan.py into one tracked, root-level report_builder.py (build_plan() plus a render_section_N() per fixed-shape section and a generic render_blocks() for freeform sections), with a thin generate_plan.py CLI replacing the per-client script entirely. Migrated Alex Mercer's plan to the new plan_data.py schema as the round-trip proof (17 pages, 5,252 words, identical to the original). SKILL.md and design_process.pdf updated. (Issue #31)", "3"],
         ["Round 15 — design_process.pdf &amp; security.pdf moved to extras/", "generate_design_pdf.py and generate_security_pdf.py were writing their output into Clients/, alongside actual client folders, even though both are internal project documents rather than client data — a source of real confusion when looking for the file. Both scripts' OUTPUT_PATH now target extras/, matching the convention generate_feedback_pdf.py already used; a stale extras/design_process.pdf copy from earlier in the project was overwritten with a freshly regenerated one. SKILL.md updated. (Issue #32)", "0.5"],
         ["Round 16 — generate_design_pdf.py tracked", "Verified generate_design_pdf.py holds no client data or real secrets — only project narrative, the approved Alex Mercer example, a generic placeholder, and env-var names never values — and removed it from .gitignore's private-generators block. Its output, extras/design_process.pdf, stays gitignored as a generated artefact. SKILL.md updated. (Issue #33)", "0.25"],
+        ["Round 17 — Flask-to-Vercel migration", "Nine staged, individually-verified steps (v0.21.0-v0.21.8): vercel.json (framework auto-detect, then a corrective fix once an explicit functions block was found to disable it entirely, 404-ing every route); MAX_CONTENT_LENGTH cut 10MB→4MB and static/ moved to public/ for Vercel's CDN; RATELIMIT_STORAGE_URI made configurable for Upstash Redis (redis==7.4.1 pinned); .vercelignore added after a dry-run showed Clients/, extras/, and other private directories would otherwise upload; smoke-testing with a real submission caught and fixed an unrelated ZIP-bundling bug (#39); render.yaml and loading/index.html deleted once both Render services were confirmed decommissioned and the landing page's CTA repointed at the Vercel URL (#40). SKILL.md and design_process.pdf updated. (Issue #38)", "7"],
+        ["Round 18 — Restyle to light theme for monorepo visual identity", "templates/index.html switched from data-bs-theme='dark' to 'light'; every dark background/border/text colour replaced with a light equivalent matching the landing page's Tailwind slate palette; Geist added via Google Fonts. Brand palette (navy/teal/gold), form.js behaviour, and Jinja2 template logic left untouched — CSS/markup only. Verified via Playwright screenshots (header, each accordion section, CV-upload and CV-fallback callouts, submit button) and the Flask test client (GET / still 200, structure intact). design_process.pdf updated. (Issue #9)", "3"],
+        ["Round 19 — Playwright E2E suite", "e2e/ suite (test_submission_email.py + fixtures) submits the real intake form and asserts the success message confirms the consultant was emailed — a regression test for the incident where a missing RESEND_API_KEY let submissions silently skip the email step. Wired into .github/workflows/e2e-intake.yml, path-filtered to intake/**, requiring a RESEND_API_KEY GitHub Actions secret. SKILL.md and design_process.pdf updated. (Issue #14)", "3"],
+        ["Round 20 — CV editing engine (PDF)", "cv_builder.py + generate_cv.py added, mirroring report_builder.py/generate_plan.py's pattern: content lives in Clients/[Name]/cv_data.py, a thin CLI renders it, documented in SKILL.md's new 'CV Editing (On Client Request)' section. 'Wants CV condensed/reframed' checkbox added to Section 9; ticking it adds a gold 'CV EDIT REQUESTED' cover-page banner to the intake PDF and a [CV EDIT] subject-line prefix on the consultant email. Landing page's 'What you get' section updated to mention the add-on. design_process.pdf updated. (Issue #17)", "4"],
+        ["Round 21 — CV editing engine (DOCX output)", "cv_docx_builder.py added, wired into generate_cv.py alongside the existing PDF output. Reimplements cv_builder.py's visual language natively in python-docx (borderless layout tables for the two-column competencies/experience headers, a real bordered table only for the one genuinely tabular section), since ReportLab and python-docx share no common primitives. Clients requesting a CV edit now get both [initials]_CV.pdf and [initials]_CV.docx by default. design_process.pdf updated. (Issue #19)", "3"],
+        ["Round 22 — Monorepo merge backfill", "career-transition-intake's full history relocated into the career-transition monorepo as intake/, alongside landing's own history as landing/, so both apps share one git history, issue tracker, and PR review surface while staying on separate Vercel projects (refs #8). extras/history.pdf compiled as a complete historical record of both repos' independent commits, issues, and releases so the archived repo and local .pre-merge-backup can eventually be deleted without losing anything (refs #12). Backfilled changelog entries only — the underlying merge itself predates this versioned record. design_process.pdf updated.", "2"],
+        ["Round 23 — LANDING_URL back-link", "LANDING_URL added and two 'Back to the landing page' links wired into templates/index.html (header and post-submit) so a client who lands on the intake form directly has a way back to the pitch without the browser back button. design_process.pdf updated. (Issue #30)", "1"],
+        ["Round 24 — Financial runway hint", "form-text hint added under 'Financial runway' after a client asked what the label meant — the one remaining non-obvious question without a self-explanatory hint or full-sentence options. design_process.pdf updated. (Issue #33)", "0.5"],
+        ["Round 25 — CV links field", "Optional links field added to the CV engine's client dict schema (cv_builder.py, cv_docx_builder.py) — a list of portfolio/Behance/LinkedIn/etc. URLs rendered in the CV contact line after languages_line, so a client's portfolio link can appear in the CV itself rather than folded into the summary paragraph. design_process.pdf updated. (Issue #36)", "0.5"],
     ]
     col_w = [INNER_W * 0.30, INNER_W * 0.55, INNER_W * 0.15]
     story.append(phase_table(effort_rows, s, col_widths=col_w))
 
     story.append(Spacer(1, 0.15 * cm))
     story.append(Paragraph(
-        "Total estimated effort: <b>80.25 hours</b>  (range: 66 – 82 hrs), comprising "
+        "Total estimated effort: <b>104.25 hours</b>  (range: 90 – 108 hrs), comprising "
         "45 hours of product development, 12 hours of security audit and hardening, "
         "3 hours of Round 2 UX feedback, 3 hours of Round 3 form enhancements, "
         "1 hour of Round 3b layout fix, 1 hour of Round 3c dynamic portfolio links, "
@@ -1221,10 +1338,19 @@ def build_story(s):
         "0.5 hours of Round 10 Document Uploads encouragement banner, "
         "1 hour of Round 11 CV/business-profile requirement, "
         "0.5 hours of Round 12 org-stage wording and loading-page simplification, "
-        "2 hours of Round 13 tags, releases, and client-name redaction, and "
-        "3 hours of Round 14 shared report_builder.py engine, and "
-        "0.5 hours of Round 15 moving design_process.pdf and security.pdf to extras/, and "
-        "0.25 hours of Round 16 tracking generate_design_pdf.py.",
+        "2 hours of Round 13 tags, releases, and client-name redaction, "
+        "3 hours of Round 14 shared report_builder.py engine, "
+        "0.5 hours of Round 15 moving design_process.pdf and security.pdf to extras/, "
+        "0.25 hours of Round 16 tracking generate_design_pdf.py, "
+        "7 hours of Round 17 Flask-to-Vercel migration, "
+        "3 hours of Round 18 restyle to light theme, "
+        "3 hours of Round 19 Playwright E2E suite, "
+        "4 hours of Round 20 CV editing engine (PDF), "
+        "3 hours of Round 21 CV editing engine (DOCX output), "
+        "2 hours of Round 22 monorepo merge backfill, "
+        "1 hour of Round 23 LANDING_URL back-link, "
+        "0.5 hours of Round 24 financial runway hint, and "
+        "0.5 hours of Round 25 CV links field.",
         s["bold"],
     ))
     story.append(rule(MGRAY, 0.5))
@@ -1300,7 +1426,7 @@ def build_story(s):
     story.append(Paragraph(
         "The following analysis presents what a professional consultant or freelance "
         "developer would charge for this project in two market contexts. The security "
-        "audit and hardening programme (12 hours, ~21% of total effort) is listed as a "
+        "audit and hardening programme (12 hours, ~12% of total effort) is listed as a "
         "separate line item to make the cost of proper security practice visible and "
         "non-negotiable. All KES figures use an exchange rate of KES 130 per USD.",
         s["body"],
@@ -1317,23 +1443,23 @@ def build_story(s):
     ))
     nbi_rows = [
         ["Discipline",                          "Nairobi Rate (KES/hr)", "Hours", "Subtotal (KES)"],
-        ["Full-stack development (Flask, PDF, Email)", "2,000 – 2,500",  "28",   "56,000 – 70,000"],
-        ["UI / UX design (Bootstrap dark theme)",      "1,500 – 2,000",  "6",    "9,000 – 12,000"],
-        ["DevOps / deployment (Render, env vars)",     "1,800 – 2,500",  "5",    "9,000 – 12,500"],
+        ["Full-stack development (Flask, PDF, Email, CV engine)", "2,000 – 2,500", "37", "74,000 – 92,500"],
+        ["UI / UX design (light theme, Geist branding)", "1,500 – 2,000",  "9",    "13,500 – 18,000"],
+        ["DevOps / deployment (Vercel, Upstash Redis, env vars)", "1,800 – 2,500", "14", "25,200 – 35,000"],
         ["Security audit &amp; hardening",             "2,000 – 2,500",  "12",   "24,000 – 30,000"],
-        ["Documentation &amp; QA",                     "1,500 – 2,000",  "6",    "9,000 – 12,000"],
+        ["Documentation &amp; QA (incl. Playwright E2E suite)", "1,500 – 2,000", "9", "13,500 – 18,000"],
     ]
     story.append(phase_table(nbi_rows, s,
         col_widths=[INNER_W*0.40, INNER_W*0.22, INNER_W*0.10, INNER_W*0.28]))
     story.append(Spacer(1, 0.1 * cm))
     story.append(Paragraph(
-        "Nairobi market total:  KES 107,000 – 136,500  (~USD 823 – 1,050)",
+        "Nairobi market total:  KES 150,200 – 193,500  (~USD 1,155 – 1,489)",
         s["total"],
     ))
     story.append(Paragraph(
         "For reference, a fixed-price project quote in the Nairobi market for a "
         "deliverable of this scope, polish, and security posture would typically range "
-        "from <b>KES 110,000 – 150,000</b>, including one round of post-launch revisions.",
+        "from <b>KES 160,000 – 210,000</b>, including one round of post-launch revisions.",
         s["note"],
     ))
 
@@ -1347,22 +1473,22 @@ def build_story(s):
     ))
     global_rows = [
         ["Discipline",                          "Global Rate (USD/hr)", "Hours", "Subtotal (USD)"],
-        ["Full-stack development (Flask, PDF, Email)", "85 – 120",      "28",   "2,380 – 3,360"],
-        ["UI / UX design (Bootstrap dark theme)",      "60 – 90",       "6",    "360 – 540"],
-        ["DevOps / deployment (Render, env vars)",     "80 – 110",      "5",    "400 – 550"],
+        ["Full-stack development (Flask, PDF, Email, CV engine)", "85 – 120", "37", "3,145 – 4,440"],
+        ["UI / UX design (light theme, Geist branding)", "60 – 90",       "9",    "540 – 810"],
+        ["DevOps / deployment (Vercel, Upstash Redis, env vars)", "80 – 110", "14", "1,120 – 1,540"],
         ["Security audit &amp; hardening",             "90 – 130",      "12",   "1,080 – 1,560"],
-        ["Documentation &amp; QA",                     "65 – 90",       "6",    "390 – 540"],
+        ["Documentation &amp; QA (incl. Playwright E2E suite)", "65 – 90", "9",  "585 – 810"],
     ]
     story.append(phase_table(global_rows, s,
         col_widths=[INNER_W*0.40, INNER_W*0.22, INNER_W*0.10, INNER_W*0.28]))
     story.append(Spacer(1, 0.1 * cm))
     story.append(Paragraph(
-        "Global market total:  USD 4,610 – 6,550  (~KES 599,000 – 851,000)",
+        "Global market total:  USD 6,470 – 9,160  (~KES 841,100 – 1,190,800)",
         s["total"],
     ))
     story.append(Paragraph(
         "A US-based digital agency or boutique software consultancy billing at agency "
-        "rates ($150 – $200/hr) would price this project at <b>USD 8,550 – 11,400</b>.",
+        "rates ($150 – $200/hr) would price this project at <b>USD 12,150 – 16,200</b>.",
         s["note"],
     ))
 
@@ -1370,21 +1496,21 @@ def build_story(s):
     story.append(Paragraph(b("9.3  Cost Summary"), s["h3"]))
     summary_rows = [
         ["Market",                   "Rate Basis",        "Low Estimate",              "High Estimate"],
-        ["Nairobi — local clients",  "KES 1,500–2,500/hr","KES 107,000\n(~USD 823)",  "KES 136,500\n(~USD 1,050)"],
-        ["Nairobi — intl. clients",  "USD 25–45/hr",      "USD 1,425\n(~KES 185,000)","USD 2,565\n(~KES 334,000)"],
-        ["Global freelance market",  "USD 85–130/hr",     "USD 4,610\n(~KES 599,000)","USD 6,550\n(~KES 851,000)"],
-        ["US / EU agency rate",      "USD 150–200/hr",    "USD 8,550\n(~KES 1,112,000)","USD 11,400\n(~KES 1,482,000)"],
+        ["Nairobi — local clients",  "KES 1,500–2,500/hr","KES 150,200\n(~USD 1,155)","KES 193,500\n(~USD 1,489)"],
+        ["Nairobi — intl. clients",  "USD 25–45/hr",      "USD 2,025\n(~KES 263,250)","USD 3,645\n(~KES 473,850)"],
+        ["Global freelance market",  "USD 85–130/hr",     "USD 6,470\n(~KES 841,100)","USD 9,160\n(~KES 1,190,800)"],
+        ["US / EU agency rate",      "USD 150–200/hr",    "USD 12,150\n(~KES 1,579,500)","USD 16,200\n(~KES 2,106,000)"],
     ]
     story.append(phase_table(summary_rows, s,
         col_widths=[INNER_W*0.28, INNER_W*0.22, INNER_W*0.25, INNER_W*0.25]))
     story.append(Spacer(1, 0.15 * cm))
     story.append(Paragraph(
         "Rates based on 2025–2026 market data from Glassdoor, PayScale, Arc.dev, and "
-        "lemon.io. Security audit and hardening (12 hrs) accounts for approximately 21% "
+        "lemon.io. Security audit and hardening (12 hrs) accounts for approximately 12% "
         "of total project effort, reflecting the non-negotiable cost of building a "
         "public-facing form that handles sensitive personal and career information. "
-        "Ongoing hosting costs are zero on Render's free tier; Resend's free tier covers "
-        "3,000 emails/month.",
+        "Ongoing hosting costs remain low on Vercel's and Upstash Redis' free/entry-level "
+        "tiers; Resend's free tier covers 3,000 emails/month.",
         s["note"],
     ))
     story.append(rule(MGRAY, 0.5))
@@ -1393,55 +1519,84 @@ def build_story(s):
     story.append(KeepTogether([section_header("10. Final Deliverable", s), Spacer(1, 0.2 * cm)]))
     story.append(Paragraph(
         "The completed system consists of the following components, all version-controlled "
-        "in the GitHub repository <b>ericgitonga/career-transition-intake</b>:",
+        "in the GitHub repository <b>ericgitonga/career-transition</b>, where this app lives "
+        "as the intake/ directory alongside the Next.js landing page's own landing/ directory "
+        "(SKILL.md is the one exception — deliberately untracked from git and kept local, "
+        "since it holds the consultant's plan-generation methodology and business know-how):",
         s["body"],
     ))
     deliverables = [
         ("app.py",
-         "Flask application: two routes, PDF generation, Resend email dispatch, file upload "
-         "handling, and all 15 security controls implemented (_safe_suffix, _clip, _sanitize, "
-         "CSRFProtect, Limiter, _security_headers, random temp filenames, finally-block cleanup, "
-         "structured logging). Fully documented with detailed docstrings."),
+         "Flask application: routes for the form, submission handling, and a liveness probe; "
+         "PDF generation, Resend email dispatch, file upload handling, and the security "
+         "controls implemented (_safe_suffix, _clip, _sanitize, CSRFProtect, Limiter, "
+         "_security_headers, random temp filenames, finally-block cleanup, structured "
+         "logging). Fully documented with detailed docstrings."),
         ("templates/index.html",
-         "Dark-themed Bootstrap 5.3 form with SHA-384 SRI hashes on both CDN resources, "
-         "a CSRF token hidden field, 10 accordion sections, 4 dedicated upload fields plus "
-         "a multi-select additional documents field. No inline scripts. Includes: client "
-         "type radio, current domain and languages fields, LinkedIn URL input, conditional "
-         "role title field (revealed by target clarity), work style / travel / management "
-         "preference radios, dynamic portfolio link list (yes/no radio + add/remove URL "
-         "fields), free-form catch-all 'anything else' textarea, and a CV fallback block "
-         "nested inside the CV column (toggle-revealed, single-column stacked layout, "
-         "auto-collapsed on CV upload)."),
-        ("static/form.js",
-         "Form interaction JavaScript: target clarity → conditional role title reveal; "
-         "CV fallback toggle (show/hide + auto-collapse on file select); hours slider "
-         "value display; AJAX fetch submission; PDF blob download trigger; email status "
-         "feedback. Served as a static file to satisfy the strict script-src CSP."),
+         "Light-themed Bootstrap 5.3 form (data-bs-theme='light'), styled to match the "
+         "landing page's slate palette and set in Geist (via Google Fonts), with SHA-384 SRI "
+         "hashes on the Bootstrap CDN resource, a CSRF token hidden field, 10 accordion "
+         "sections, 4 dedicated upload fields plus a multi-select additional documents field, "
+         "and a header/post-submit 'Back to the landing page' link (LANDING_URL). No inline "
+         "scripts. Includes: client type radio, current domain and languages fields, LinkedIn "
+         "URL input, conditional role title field (revealed by target clarity), work style / "
+         "travel / management preference radios, dynamic portfolio link list (yes/no radio + "
+         "add/remove URL fields), a 'wants CV condensed/reframed' checkbox, free-form "
+         "catch-all 'anything else' textarea, and a CV fallback block nested inside the CV "
+         "column (toggle-revealed, single-column stacked layout, auto-collapsed on CV "
+         "upload)."),
+        ("public/form.js",
+         "Form interaction JavaScript (moved from static/ to public/ for Vercel's CDN to "
+         "serve directly): target clarity → conditional role title reveal; CV fallback "
+         "toggle (show/hide + auto-collapse on file select); hours slider value display; "
+         "AJAX fetch submission; PDF blob download trigger; email status feedback. Served "
+         "as a static file to satisfy the strict script-src CSP."),
         ("requirements.txt",
-         "Six pinned dependencies: flask==3.1.3, flask-wtf==1.3.0, flask-limiter==4.1.1, "
-         "gunicorn==26.0.0, reportlab==4.4.10, resend==2.32.2."),
-        ("render.yaml",
-         "Infrastructure-as-code: two services — the Flask web service (Python runtime, "
-         "gunicorn start command, RESEND_API_KEY / SECRET_KEY / LOADING_SITE_ORIGIN env vars) "
-         "and the companion Render Static Site (career-transition-loading, staticPublishPath: loading)."),
-        ("loading/index.html",
-         "Branded dark-theme loading page served by the Render Static Site. Displays a spinner "
-         "and a 'Preparing your form...' tagline, no visible countdown. Polls the Flask app's "
-         "/_health endpoint every 3 seconds and redirects on success. This is the canonical "
-         "client-facing URL — it replaces Render's server-log cold-start screen entirely."),
+         "Eight pinned dependencies: flask==3.1.3, flask-wtf==1.3.0, flask-limiter==4.1.1, "
+         "redis==7.4.1, gunicorn==26.0.0, reportlab==4.4.10, resend==2.32.2, "
+         "python-docx==1.2.0."),
+        ("vercel.json",
+         "Infrastructure-as-code for the current Vercel deployment: \"framework\": \"flask\" "
+         "for zero-config auto-detection of app.py as the Function entry point, and a "
+         "maxDuration cap of 60s — generous for this app's synchronous work (PDF build + one "
+         "Resend call) while bounding worst-case cost well under Hobby's 300s default/max. "
+         "Replaces render.yaml, which is deleted along with the Render services it described."),
+        (".vercelignore",
+         "Excludes Clients/ (real client CVs and personal documents), extras/, .agents/, "
+         ".claude/, and the private report generators from the Vercel deploy upload — "
+         "`vercel deploy` does not respect .gitignore for what gets uploaded. Also excludes "
+         ".python-version (pins 3.11.9 locally, conflicts with Vercel's Python 3.12 default) "
+         "and the now-removed render.yaml/loading/."),
         (".python-version",
-         "Pins Python 3.11.9 to ensure consistent runtime across all Render deploys."),
+         "Pins Python 3.11.9 for consistent local development; Vercel's own Python 3.12 "
+         "default applies in production."),
+        ("cv_builder.py, cv_docx_builder.py, generate_cv.py",
+         "The CV-editing engine, mirroring report_builder.py/generate_plan.py's pattern: a "
+         "client's Clients/[Name]/cv_data.py holds content only, and generate_cv.py's thin "
+         "CLI renders both a condensed, ATS-safe [initials]_CV.pdf (cv_builder.py, ReportLab) "
+         "and an [initials]_CV.docx (cv_docx_builder.py, python-docx, reimplementing the same "
+         "visual language natively since the two libraries share no common primitives) from "
+         "the same schema, including an optional links field for portfolio/Behance/LinkedIn "
+         "URLs."),
+        ("report_builder.py, generate_plan.py",
+         "The shared plan-generation engine: report_builder.py holds every ReportLab palette, "
+         "paragraph style, layout helper, and per-section renderer that used to be duplicated "
+         "at the top of each client's own generate_plan.py; the thin root-level "
+         "generate_plan.py CLI loads a client's plan_data.py PLAN dict and calls "
+         "report_builder.build_plan()."),
+        ("e2e/ + .github/workflows/e2e-intake.yml",
+         "Playwright E2E suite (test_submission_email.py + fixtures) that submits the real "
+         "intake form and asserts the success message confirms the consultant was emailed — "
+         "a regression test for the incident where a missing RESEND_API_KEY let submissions "
+         "silently skip the email step. Runs in CI on a real Flask dev server, path-filtered "
+         "to intake/** so a landing/-only change doesn't trigger it, and requires a "
+         "RESEND_API_KEY GitHub Actions secret."),
         ("SKILL.md",
-         "Consultant workflow guide including a Security First section with a controls reference "
-         "table, client data handling rules, user-facing behaviour rules (plain-English errors, "
-         "loading page as canonical entry point), change-management guidelines, and an expanded "
-         "quality checklist with security checks as the first gate."),
-        ("hosting.pdf",
-         "Illustrated setup guide for deploying and operating the service, covering Render "
-         "account setup, Resend API key creation, and ongoing maintenance commands."),
-        ("generate_hosting_pdf.py",
-         "ReportLab script that regenerates hosting.pdf when deployment instructions change. "
-         "Fully documented with comprehensive docstrings."),
+         "Consultant workflow guide including a Security First section with a controls "
+         "reference table, client data handling rules, user-facing behaviour rules, a CV "
+         "Editing (On Client Request) section, change-management guidelines, and an expanded "
+         "quality checklist with security checks as the first gate. Kept local and untracked "
+         "from git — the one deliverable not version-controlled in the GitHub repository."),
         ("generate_design_pdf.py",
          "ReportLab script that produces this document. Tracked in the repository; regenerate "
          "whenever the design narrative, effort breakdown, or cost figures are updated."),
@@ -1451,15 +1606,17 @@ def build_story(s):
 
     story.append(Spacer(1, 0.2 * cm))
     story.append(Paragraph(b("Live URLs:"), s["h3"]))
-    story.append(Paragraph("Client entry point (share this):  https://career-transition-loading.onrender.com", s["code"]))
-    story.append(Paragraph("Flask application (internal):     https://career-transition-intake.onrender.com", s["code"]))
+    story.append(Paragraph("Landing page (share this):  https://career-transition-psi.vercel.app", s["code"]))
+    story.append(Paragraph("Intake form (Flask app):    https://career-transition-intake.vercel.app", s["code"]))
     story.append(Spacer(1, 0.2 * cm))
     story.append(Paragraph(
-        "The service is production-ready and hardened. Clients are directed to the loading "
-        "page URL, which handles cold-start waiting gracefully and redirects automatically "
-        "to the form. On submission, their completed intake PDF is delivered to the "
-        "consultant's inbox within seconds, with no manual intervention required, and "
-        "the submission is logged server-side for audit and abuse detection.",
+        "The service is production-ready and hardened. Clients typically arrive at the "
+        "intake form via the landing page's own call-to-action; Vercel's Fluid Compute cold "
+        "starts are fast enough that the separate loading-page workaround the Render "
+        "deployment once needed is no longer necessary. On submission, the client's "
+        "completed intake PDF is delivered to the consultant's inbox within seconds, with no "
+        "manual intervention required, and the submission is logged server-side for audit "
+        "and abuse detection.",
         s["body"],
     ))
     story.append(rule(GOLD, 1.5, 12, 4))
