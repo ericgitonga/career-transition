@@ -6,6 +6,14 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.27.0] - 2026-08-03
+### Added
+- Added Vercel Web Analytics + Speed Insights script tags to the intake form
+  template, feeding the cross-project `vercel-metrics` data pipeline.
+  (closes #40)
+
+tag: `intake-v0.27.0`
+
 ## [0.26.0] - 2026-08-02
 ### Added
 - Added an optional `links` field to the CV engine's `client` dict schema
