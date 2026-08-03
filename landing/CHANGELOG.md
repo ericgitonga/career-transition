@@ -6,6 +6,21 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.6.1] - 2026-08-03
+
+### Changed
+
+- Added first-name attribution to both landing-page testimonials
+  (Jacqueline, Emmanuel), and gave the second a from/to transition framing
+  (Software Engineering Professional to farming) in place of the
+  anonymized "referred within a professional brotherhood" line. Quote
+  text unchanged. (closes #48)
+- Dropped the hard-coded em-dash prefix in the testimonial footer markup
+  in favor of a "Name - Role" separator baked into each attribution
+  string.
+
+tag: `landing-v0.6.1`
+
 ## [0.6.0] - 2026-08-03
 
 ### Changed
