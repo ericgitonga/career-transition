@@ -6,6 +6,19 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.5.0] - 2026-08-03
+
+### Added
+
+- Vercel Web Analytics (`@vercel/analytics`) and Speed Insights
+  (`@vercel/speed-insights`) instrumentation, rendered from the root
+  layout. Feeds pageview/visitor and Core Web Vitals data into the new
+  cross-project `vercel-metrics` pipeline. Enabling the Web
+  Analytics/Speed Insights toggle in the Vercel project dashboard is a
+  manual follow-up. (closes #39)
+
+tag: `landing-v0.5.0`
+
 ## [0.4.0] - 2026-08-01
 
 ### Changed
