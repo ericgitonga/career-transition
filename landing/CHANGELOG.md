@@ -10,10 +10,10 @@ user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
 ### Changed
 
-- Named the second landing-page testimonial's client (Emmanuel Kitonyo) and
-  added a from/to transition framing (Software Engineering Professional to
-  farming), replacing the anonymized "referred within a professional
-  brotherhood" attribution. Quote text unchanged. (closes #48)
+- Replaced the second landing-page testimonial's anonymized "referred
+  within a professional brotherhood" attribution with a from/to transition
+  framing (Software Engineering Professional to farming), kept unnamed to
+  match the site's anonymized style. Quote text unchanged. (closes #48)
 
 tag: `landing-v0.6.1`
 
