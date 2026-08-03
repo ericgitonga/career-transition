@@ -111,7 +111,7 @@ const TESTIMONIALS: Testimonial[] = [
   {
     quote:
       "It articulated my aspirations succinctly and mapped out a credible, actionable course of action — it's clarified a lot of my thinking.",
-    attribution: "Referred within a professional brotherhood",
+    attribution: "Emmanuel Kitonyo, Software Engineering Professional transitioning to farming",
   },
 ];
 
