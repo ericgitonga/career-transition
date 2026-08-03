@@ -10,10 +10,11 @@ user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
 ### Changed
 
-- Replaced the second landing-page testimonial's anonymized "referred
-  within a professional brotherhood" attribution with a from/to transition
-  framing (Software Engineering Professional to farming), kept unnamed to
-  match the site's anonymized style. Quote text unchanged. (closes #48)
+- Added first-name attribution to both landing-page testimonials
+  (Jacqueline, Emmanuel), and gave the second a from/to transition framing
+  (Software Engineering Professional to farming) in place of the
+  anonymized "referred within a professional brotherhood" line. Quote
+  text unchanged. (closes #48)
 
 tag: `landing-v0.6.1`
 

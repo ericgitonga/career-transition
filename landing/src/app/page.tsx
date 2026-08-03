@@ -106,12 +106,12 @@ type Testimonial = {
 const TESTIMONIALS: Testimonial[] = [
   {
     quote: "Way above and beyond anything I had tried to generate on my own.",
-    attribution: "Compliance & Regulatory Professional, FMCG sector",
+    attribution: "Jacqueline, Compliance & Regulatory Professional, FMCG sector",
   },
   {
     quote:
       "It articulated my aspirations succinctly and mapped out a credible, actionable course of action — it's clarified a lot of my thinking.",
-    attribution: "Software Engineering Professional transitioning to farming",
+    attribution: "Emmanuel, Software Engineering Professional transitioning to farming",
   },
 ];
 
