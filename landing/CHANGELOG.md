@@ -6,6 +6,16 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.6.0] - 2026-08-03
+
+### Changed
+
+- Replaced the second landing-page testimonial (colleague-referral quote)
+  with a new direct-referral testimonial, condensed to match the site's
+  existing terse, first-person tone. (closes #45)
+
+tag: `landing-v0.6.0`
+
 ## [0.5.0] - 2026-08-03
 
 ### Added
