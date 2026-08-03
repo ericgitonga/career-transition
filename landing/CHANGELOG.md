@@ -15,6 +15,9 @@ user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
   (Software Engineering Professional to farming) in place of the
   anonymized "referred within a professional brotherhood" line. Quote
   text unchanged. (closes #48)
+- Dropped the hard-coded em-dash prefix in the testimonial footer markup
+  in favor of a "Name - Role" separator baked into each attribution
+  string.
 
 tag: `landing-v0.6.1`
 
