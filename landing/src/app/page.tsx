@@ -297,7 +297,7 @@ export default function Home() {
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-10 text-center">
             <span className="text-sm font-semibold uppercase tracking-wide text-[#0E7C7B]">
-              Introductory offer — 50% off
+              Introductory offer — 50% off, through August 31, 2026
             </span>
             <div className="flex items-baseline gap-3">
               <span className="text-lg text-slate-400 line-through">KES 7,500</span>
@@ -308,8 +308,8 @@ export default function Home() {
             </p>
             <CtaButton className="mt-4" />
             <p className="text-xs text-slate-500">
-              This introductory price won&apos;t be around for long — once the offer
-              closes, it&apos;s back to full price.
+              This introductory price ends August 31, 2026 — after that, it&apos;s back to
+              full price.
             </p>
           </div>
         </div>

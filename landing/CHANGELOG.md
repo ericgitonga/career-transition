@@ -6,6 +6,16 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.6.2] - 2026-08-04
+
+### Changed
+
+- Pricing section now states the introductory 50% off offer ends August 31, 2026,
+  instead of the vague "won't be around for long" — visitors see exactly when it
+  reverts to full price. (closes #50)
+
+tag: `landing-v0.6.2`
+
 ## [0.6.1] - 2026-08-03
 
 ### Changed
