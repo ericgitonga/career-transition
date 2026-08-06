@@ -29,7 +29,7 @@ from reportlab.platypus import (
 from report_builder import (
     NAVY, TEAL, GOLD, MGRAY, BLACK, WHITE,
     W, H, MARGIN, INNER_W,
-    two_col, data_table, rule, footer_canvas_factory,
+    two_col, data_table, rule, footer_canvas_factory, esc,
 )
 
 CV_ST = {
@@ -58,24 +58,24 @@ CV_ST = {
 
 
 def section_header(text, story):
-    story.append(Paragraph(text.upper(), CV_ST["section"]))
+    story.append(Paragraph(esc(text).upper(), CV_ST["section"]))
     story.append(rule(color=GOLD, thick=0.75, before=1, after=6))
 
 
 def render_header(client, story):
-    story.append(Paragraph(client["name"], CV_ST["name"]))
+    story.append(Paragraph(esc(client["name"]), CV_ST["name"]))
     contact_bits = [client["location"], client["email"]]
     if client.get("languages_line"):
         contact_bits.append(client["languages_line"])
     if client.get("links"):
         contact_bits.extend(client["links"])
-    story.append(Paragraph("  ·  ".join(contact_bits), CV_ST["contact"]))
+    story.append(Paragraph("  ·  ".join(esc(b) for b in contact_bits), CV_ST["contact"]))
     story.append(Spacer(1, 8))
 
 
 def render_summary(text, story):
     section_header("Professional Summary", story)
-    story.append(Paragraph(text, CV_ST["summary"]))
+    story.append(Paragraph(esc(text), CV_ST["summary"]))
     story.append(Spacer(1, 8))
 
 
@@ -90,8 +90,8 @@ def render_experience(entries, story, heading="Professional Experience"):
     section_header(heading, story)
     for e in entries:
         header = Table(
-            [[Paragraph(f"{e['title']}", CV_ST["entry_title"]),
-              Paragraph(e["dates"], CV_ST["entry_dates"])]],
+            [[Paragraph(esc(e["title"]), CV_ST["entry_title"]),
+              Paragraph(esc(e["dates"]), CV_ST["entry_dates"])]],
             colWidths=[INNER_W * 0.72, INNER_W * 0.28],
         )
         header.setStyle(TableStyle([
@@ -103,10 +103,10 @@ def render_experience(entries, story, heading="Professional Experience"):
             ("ALIGN", (1, 0), (1, 0), "RIGHT"),
         ]))
         story.append(header)
-        story.append(Paragraph(e["org"], CV_ST["entry_org"]))
+        story.append(Paragraph(esc(e["org"]), CV_ST["entry_org"]))
         story.append(Spacer(1, 2))
         for b in e["bullets"]:
-            story.append(Paragraph(f"•  {b}", CV_ST["bullet"]))
+            story.append(Paragraph(f"•  {esc(b)}", CV_ST["bullet"]))
         story.append(Spacer(1, 8))
 
 
@@ -114,8 +114,8 @@ def render_condensed_experience(entries, story, heading="Earlier Experience"):
     section_header(heading, story)
     for e in entries:
         story.append(Paragraph(
-            f"<b>{e['title']}</b>, {e['org']} "
-            f"<font color='#555555'><i>({e['dates']})</i></font> — {e['summary']}",
+            f"<b>{esc(e['title'])}</b>, {esc(e['org'])} "
+            f"<font color='#555555'><i>({esc(e['dates'])})</i></font> — {esc(e['summary'])}",
             CV_ST["condensed"],
         ))
     story.append(Spacer(1, 8))
@@ -130,7 +130,7 @@ def render_table_section(heading, headers, rows, col_ratios, story):
 def render_plain_list_section(heading, items, story):
     section_header(heading, story)
     for item in items:
-        story.append(Paragraph(f"•  {item}", CV_ST["plain_list"]))
+        story.append(Paragraph(f"•  {esc(item)}", CV_ST["plain_list"]))
     story.append(Spacer(1, 8))
 
 

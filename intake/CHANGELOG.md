@@ -6,6 +6,19 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.27.2] - 2026-08-06
+### Fixed
+- Added a shared `esc()` helper in `report_builder.py` (reused by
+  `cv_builder.py`) that escapes text with `xml.sax.saxutils.escape()`
+  before it reaches a ReportLab `Paragraph()` call. A literal `<b>`,
+  `<i>`, or `<a>` fragment surviving a copy-paste from a client's
+  rich-text CV/résumé into `cv_data.py`/`plan_data.py` previously crashed
+  `generate_cv.py`/`generate_plan.py` with a `ValueError`, the same
+  failure mode as #52 (R-02) but for consultant-transcribed content.
+  (closes #53)
+
+tag: `intake-v0.27.2`
+
 ## [0.27.1] - 2026-08-06
 ### Fixed
 - Escaped client-typed text with `xml.sax.saxutils.escape()` before it
