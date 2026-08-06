@@ -16,6 +16,7 @@ Two kinds of section in this document:
     needed for them at all.
 """
 
+import re
 from xml.sax.saxutils import escape as _xml_escape
 
 from reportlab.lib.pagesizes import A4
@@ -41,6 +42,27 @@ def esc(value) -> str:
     not the literal tags around it.
     """
     return _xml_escape(str(value))
+
+
+_ALLOWED_TAG = re.compile(r"(</?[bi]>)")
+
+
+def esc_markup(value) -> str:
+    """Escape *value* like esc(), but let well-formed <b>/<i> pairs through.
+
+    Consultant-authored prose in plan_data.py (Section 1/4/6/7/8/10/12 blocks
+    and tips) uses literal "<b>...</b>" as its bold convention — those tags
+    must reach ReportLab unescaped or they render as visible text. A stray,
+    unbalanced "<"/">"/"&" (e.g. a copy-pasted rich-text fragment) is still
+    escaped, so it can't crash doc.build() the way esc() was added to prevent
+    (R-05). Only whole <b>, </b>, <i>, </i> tokens are exempted from escaping;
+    anything else — including malformed tags — is escaped as usual.
+    """
+    parts = _ALLOWED_TAG.split(str(value))
+    return "".join(
+        part if _ALLOWED_TAG.fullmatch(part) else _xml_escape(part)
+        for part in parts
+    )
 
 # ── Palette ───────────────────────────────────────────────────────────────────
 NAVY  = colors.HexColor("#1B2A4A")
@@ -286,20 +308,25 @@ def render_blocks(blocks, story):
       - "table": {"headers": [...], "rows": [[...]], "col_ratios": [...] (optional)}
     "space_after" at the block level overrides the default 8pt spacer appended
     after the whole block.
+
+    Text fields here ("heading", "paragraph", the shaded-box "text") support
+    literal "<b>...</b>" / "<i>...</i>" as the bold/italic convention — those
+    tags render as real markup; any other "<", ">", "&" is escaped and shown
+    literally.
     """
     for block in blocks:
         if "heading" in block:
-            story.append(Paragraph(esc(block["heading"]), ST["h2"]))
+            story.append(Paragraph(esc_markup(block["heading"]), ST["h2"]))
 
         if "paragraph" in block:
-            story.append(Paragraph(esc(block["paragraph"]), ST["body"]))
+            story.append(Paragraph(esc_markup(block["paragraph"]), ST["body"]))
         elif "shaded_box" in block:
             sb = block["shaded_box"]
             content = []
             for p in sb["paragraphs"]:
                 if isinstance(p, str):
                     p = {"text": p}
-                content.append(Paragraph(esc(p["text"]), ST[p.get("style", "body")]))
+                content.append(Paragraph(esc_markup(p["text"]), ST[p.get("style", "body")]))
                 if p.get("space_after"):
                     content.append(Spacer(1, p["space_after"]))
             story.append(shaded_box(content, border=BORDER_COLORS.get(sb.get("border", "teal"), TEAL)))
@@ -411,7 +438,7 @@ def render_section_8(data, story):
         col_ratios=[0.05, 0.32, 0.13, 0.50],
     ))
     story.append(Spacer(1, 6))
-    story.append(shaded_box([Paragraph(esc(s8["tip"]), ST["body"])]))
+    story.append(shaded_box([Paragraph(esc_markup(s8["tip"]), ST["body"])]))
     story.append(Spacer(1, 12))
     story.append(PageBreak())
 
