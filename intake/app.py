@@ -26,6 +26,11 @@ Second audit (see Clients/security.pdf for full findings):
         tracked script (extras/pull_render_logs.py) (Phase 4)
   S-19  Client slug restricted to safe filename characters, preventing
         path-like sequences in ZIP archive entry names (Phase 4)
+
+Third audit (see extras/areas_to_improve.pdf for full findings):
+  S-20  Client text escaped before reaching ReportLab's Paragraph() markup
+        parser, preventing a stray "<", ">", or "&" from crashing PDF
+        generation and losing the whole submission (Phase 5)
 """
 
 import os
@@ -37,6 +42,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import quote
+from xml.sax.saxutils import escape as _xml_escape
 
 import resend
 from flask import Flask, request, render_template, send_file
@@ -371,7 +377,10 @@ def _qa(question, value):
         Paragraph (indented), and a small vertical Spacer.
     """
     text = ", ".join(value) if isinstance(value, list) else str(value or "—").strip() or "—"
-    return [Paragraph(question, _label), Paragraph(text, _ans), Spacer(1, 4)]
+    # S-20: escape before Paragraph parses it as pseudo-XML — a stray "<" or
+    # "&" in client-typed text would otherwise raise inside ReportLab and
+    # crash the whole PDF build.
+    return [Paragraph(_xml_escape(question), _label), Paragraph(_xml_escape(text), _ans), Spacer(1, 4)]
 
 
 def _is_entrepreneur_type(client_type: str) -> bool:
@@ -465,7 +474,7 @@ def build_pdf(d, path):
     cover = Table([
         [Paragraph("CAREER TRANSITION", _ct)],
         [Paragraph("Client Onboarding Intake", _cs)],
-        [Paragraph(d.get("full_name", ""), _cn)],
+        [Paragraph(_xml_escape(d.get("full_name", "")), _cn)],
         [Paragraph(datetime.now().strftime("Submitted: %d %B %Y"), _meta)],
     ], colWidths=[W])
     cover.setStyle(TableStyle([
