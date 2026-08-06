@@ -9,10 +9,16 @@ user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 ## [0.27.1] - 2026-08-06
 ### Fixed
 - Escaped client-typed text with `xml.sax.saxutils.escape()` before it
-  reaches ReportLab's `Paragraph()` calls in `_qa()` and `build_pdf()`. A
-  stray `<`, `>`, or `&` in a client's answer (e.g. "Prefer <b>remote
-  only") previously crashed PDF generation with a `ValueError`, silently
-  losing the entire submission. (closes #52)
+  reaches ReportLab's `Paragraph()` calls in `_qa()` and `build_pdf()`.
+  Verified directly against the pinned reportlab: a recognized tag left
+  unclosed in a client's answer (e.g. "Prefer <b>remote only", missing
+  its closing `</b>`) previously raised a `ValueError` inside PDF
+  generation, silently losing the entire submission. (closes #52)
+- Added `e2e/test_special_characters.py`, a permanent regression test
+  that submits the real intake form with an unclosed `<b>` tag (plus a
+  bare `&`, `->`, and `>`) in two free-text fields and asserts the
+  submission still succeeds, so this class of bug can't silently
+  reappear.
 
 tag: `intake-v0.27.1`
 
