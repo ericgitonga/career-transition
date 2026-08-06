@@ -16,6 +16,8 @@ Two kinds of section in this document:
     needed for them at all.
 """
 
+from xml.sax.saxutils import escape as _xml_escape
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import cm
@@ -25,6 +27,20 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, PageBreak,
     HRFlowable, KeepTogether, Table, TableStyle,
 )
+
+
+def esc(value) -> str:
+    """Escape *value* for safe inclusion in a ReportLab Paragraph.
+
+    ReportLab parses Paragraph text as a small pseudo-XML dialect, so an
+    unescaped "<", ">", or "&" surviving a copy-paste into a client's
+    cv_data.py/plan_data.py (e.g. a "<b>" fragment from a rich-text CV)
+    raises inside doc.build() and aborts the whole PDF (R-05, mirroring
+    R-02 in app.py). Call sites that intentionally embed real markup
+    (e.g. "<b>...</b>") must wrap only the interpolated data in esc(),
+    not the literal tags around it.
+    """
+    return _xml_escape(str(value))
 
 # ── Palette ───────────────────────────────────────────────────────────────────
 NAVY  = colors.HexColor("#1B2A4A")
@@ -111,7 +127,7 @@ def rule(color=GOLD, thick=0.75, before=5, after=7):
 
 
 def section_header(text):
-    p = Paragraph(text, ParagraphStyle(
+    p = Paragraph(esc(text), ParagraphStyle(
         "sh", fontName="Helvetica-Bold", fontSize=11,
         textColor=WHITE, leading=14))
     t = Table([[p]], colWidths=[INNER_W])
@@ -141,8 +157,8 @@ def shaded_box(paragraphs, bg=LGRAY, border=TEAL):
 
 def two_col(left_items, right_items):
     col = (INNER_W - 6) / 2
-    left_cells  = [[Paragraph(f"• {x}", ST["bullet"])] for x in left_items]
-    right_cells = [[Paragraph(f"• {x}", ST["bullet"])] for x in right_items]
+    left_cells  = [[Paragraph(f"• {esc(x)}", ST["bullet"])] for x in left_items]
+    right_cells = [[Paragraph(f"• {esc(x)}", ST["bullet"])] for x in right_items]
     max_rows = max(len(left_cells), len(right_cells))
     while len(left_cells)  < max_rows: left_cells.append([""])
     while len(right_cells) < max_rows: right_cells.append([""])
@@ -164,11 +180,11 @@ def data_table(headers, rows, col_ratios=None):
     if col_ratios is None:
         col_ratios = [1 / len(headers)] * len(headers)
     col_widths = [INNER_W * r for r in col_ratios]
-    h_row = [Paragraph(h, ST["th"]) for h in headers]
+    h_row = [Paragraph(esc(h), ST["th"]) for h in headers]
     data = [h_row]
     for row in rows:
         data.append([
-            Paragraph(c, ST["cell"]) if isinstance(c, str) else c
+            Paragraph(esc(c), ST["cell"]) if isinstance(c, str) else c
             for c in row
         ])
     t = Table(data, colWidths=col_widths, repeatRows=1)
@@ -189,7 +205,7 @@ def pri_cell(priority, width=None):
     """Colour-coded priority badge used by the skills-gap table. priority is
     one of the PRIORITY_STYLES keys (HIGH/MED/LOW/NONE)."""
     bg, label, fg = PRIORITY_STYLES[priority]
-    p = Paragraph(label, ParagraphStyle("pc", parent=ST["pri_badge"], textColor=fg))
+    p = Paragraph(esc(label), ParagraphStyle("pc", parent=ST["pri_badge"], textColor=fg))
     t = Table([[p]], colWidths=[width] if width else None)
     t.setStyle(TableStyle([
         ("BACKGROUND",    (0, 0), (-1, -1), bg),
@@ -203,8 +219,8 @@ def pri_cell(priority, width=None):
 
 
 def semester_card(client_first_name, num, title, dates, objective, topics, deliverables, connects):
-    hdr_p  = Paragraph(f"Semester {num} — {title}", ST["sem_title"])
-    date_p = Paragraph(dates, ST["sem_dates"])
+    hdr_p  = Paragraph(f"Semester {esc(num)} — {esc(title)}", ST["sem_title"])
+    date_p = Paragraph(esc(dates), ST["sem_dates"])
     header = Table([[hdr_p, date_p]], colWidths=[INNER_W * 0.70, INNER_W * 0.30])
     header.setStyle(TableStyle([
         ("BACKGROUND",    (0, 0), (-1, -1), NAVY),
@@ -217,13 +233,13 @@ def semester_card(client_first_name, num, title, dates, objective, topics, deliv
     ]))
 
     def label(txt):
-        return Paragraph(txt, ST["sem_label"])
+        return Paragraph(esc(txt), ST["sem_label"])
 
     def body(txt):
-        return Paragraph(txt, ST["sem_body"])
+        return Paragraph(esc(txt), ST["sem_body"])
 
     def bullets(items):
-        return [Paragraph(f"• {i}", ST["sem_body"]) for i in items]
+        return [Paragraph(f"• {esc(i)}", ST["sem_body"]) for i in items]
 
     content = [
         header,
@@ -273,17 +289,17 @@ def render_blocks(blocks, story):
     """
     for block in blocks:
         if "heading" in block:
-            story.append(Paragraph(block["heading"], ST["h2"]))
+            story.append(Paragraph(esc(block["heading"]), ST["h2"]))
 
         if "paragraph" in block:
-            story.append(Paragraph(block["paragraph"], ST["body"]))
+            story.append(Paragraph(esc(block["paragraph"]), ST["body"]))
         elif "shaded_box" in block:
             sb = block["shaded_box"]
             content = []
             for p in sb["paragraphs"]:
                 if isinstance(p, str):
                     p = {"text": p}
-                content.append(Paragraph(p["text"], ST[p.get("style", "body")]))
+                content.append(Paragraph(esc(p["text"]), ST[p.get("style", "body")]))
                 if p.get("space_after"):
                     content.append(Spacer(1, p["space_after"]))
             story.append(shaded_box(content, border=BORDER_COLORS.get(sb.get("border", "teal"), TEAL)))
@@ -301,15 +317,15 @@ def render_blocks(blocks, story):
 def render_cover(client, story):
     cover = Table(
         [
-            [Paragraph(client["name"], ST["cover_name"])],
+            [Paragraph(esc(client["name"]), ST["cover_name"])],
             [Spacer(1, 8)],
             [Paragraph("Career Transition Plan", ST["cover_sub"])],
             [Spacer(1, 6)],
-            [Paragraph(f"From {client['from_domain']}  →  {client['to_domain']}", ST["cover_tag"])],
+            [Paragraph(f"From {esc(client['from_domain'])}  →  {esc(client['to_domain'])}", ST["cover_tag"])],
             [Spacer(1, 20)],
-            [Paragraph(f"{client['location']}  ·  {client['date']}", ST["cover_meta"])],
+            [Paragraph(f"{esc(client['location'])}  ·  {esc(client['date'])}", ST["cover_meta"])],
             [Spacer(1, 10)],
-            [Paragraph(client["confidentiality"], ST["cover_conf"])],
+            [Paragraph(esc(client["confidentiality"]), ST["cover_conf"])],
         ],
         colWidths=[INNER_W],
     )
@@ -327,7 +343,7 @@ def render_cover(client, story):
 
 
 def render_opening_tagline(text, story):
-    story.append(shaded_box([Paragraph(text, ST["tagline"])], border=GOLD))
+    story.append(shaded_box([Paragraph(esc(text), ST["tagline"])], border=GOLD))
     story.append(Spacer(1, 12))
 
 
@@ -345,7 +361,7 @@ def render_section_2(data, first_name, story):
     ))
     story.append(Spacer(1, 10))
 
-    story.append(Paragraph(s2["orgs_heading"], ST["h2"]))
+    story.append(Paragraph(esc(s2["orgs_heading"]), ST["h2"]))
     story.append(two_col(s2["orgs_left"], s2["orgs_right"]))
     story.append(Spacer(1, 12))
     story.append(PageBreak())
@@ -395,7 +411,7 @@ def render_section_8(data, story):
         col_ratios=[0.05, 0.32, 0.13, 0.50],
     ))
     story.append(Spacer(1, 6))
-    story.append(shaded_box([Paragraph(s8["tip"], ST["body"])]))
+    story.append(shaded_box([Paragraph(esc(s8["tip"]), ST["body"])]))
     story.append(Spacer(1, 12))
     story.append(PageBreak())
 
@@ -407,10 +423,10 @@ def render_section_9(data, story):
     story.append(Spacer(1, 6))
 
     def tc(text):
-        return Paragraph(text, ST["tracker_item"])
+        return Paragraph(esc(text), ST["tracker_item"])
 
     def tb(text):
-        return Paragraph(f"<b>{text}</b>", ST["tracker_focus"])
+        return Paragraph(f"<b>{esc(text)}</b>", ST["tracker_focus"])
 
     table_rows = [
         [tb(r["month"]), tc(r["learning"]), tc(r["networking"]), tc(r["portfolio"])]
@@ -431,10 +447,10 @@ def render_section_10(data, story):
     story.append(Spacer(1, 6))
 
     story.append(Paragraph("Elevator Pitch  (spoken aloud: ~60 seconds)", ST["h2"]))
-    story.append(shaded_box([Paragraph(s10["pitch"], ST["pitch"])], border=GOLD))
+    story.append(shaded_box([Paragraph(esc(s10["pitch"]), ST["pitch"])], border=GOLD))
     story.append(Spacer(1, 10))
 
-    story.append(Paragraph(s10["reframe_heading"], ST["h2"]))
+    story.append(Paragraph(esc(s10["reframe_heading"]), ST["h2"]))
     story.append(data_table(
         ["Current CV Language", s10["reframe_col_2_heading"]],
         [[r["old"], r["new"]] for r in s10["reframing"]],
