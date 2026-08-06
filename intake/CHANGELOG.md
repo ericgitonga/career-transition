@@ -6,6 +6,16 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.27.1] - 2026-08-06
+### Fixed
+- Escaped client-typed text with `xml.sax.saxutils.escape()` before it
+  reaches ReportLab's `Paragraph()` calls in `_qa()` and `build_pdf()`. A
+  stray `<`, `>`, or `&` in a client's answer (e.g. "Prefer <b>remote
+  only") previously crashed PDF generation with a `ValueError`, silently
+  losing the entire submission. (closes #52)
+
+tag: `intake-v0.27.1`
+
 ## [0.27.0] - 2026-08-03
 ### Added
 - Added Vercel Web Analytics + Speed Insights script tags to the intake form
