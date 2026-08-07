@@ -2,8 +2,8 @@
 
 `_qa()`/`build_pdf()` in app.py used to pass client-typed text straight into
 ReportLab's Paragraph(), which parses a pseudo-XML dialect. Verified directly
-against the pinned reportlab: a bare "&"/">" or an unrecognized "<tag>" is
-tolerated, but a *recognized* ReportLab tag left unclosed -- e.g. a client
+against the pinned reportlab: a bare "&"/">" or an unrecognised "<tag>" is
+tolerated, but a *recognised* ReportLab tag left unclosed -- e.g. a client
 typing "prefer <b>remote-first orgs" and never closing the <b> -- raised a
 ValueError and turned the whole submission into a generic 500, losing the
 client's entire intake (see #52). Fixed by escaping every field with

@@ -6,6 +6,14 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.27.4] - 2026-08-07
+### Fixed
+- Standardised remaining American spellings to British spelling (recognised,
+  unrecognised, programme) in the changelog, an e2e docstring, the PDF-generator
+  string, and two intake form option labels. (closes #58)
+
+tag: `intake-v0.27.4`
+
 ## [0.27.2] - 2026-08-06
 ### Fixed
 - Added a shared `esc()` helper in `report_builder.py` (reused by
@@ -23,7 +31,7 @@ tag: `intake-v0.27.2`
 ### Fixed
 - Escaped client-typed text with `xml.sax.saxutils.escape()` before it
   reaches ReportLab's `Paragraph()` calls in `_qa()` and `build_pdf()`.
-  Verified directly against the pinned reportlab: a recognized tag left
+  Verified directly against the pinned reportlab: a recognised tag left
   unclosed in a client's answer (e.g. "Prefer <b>remote only", missing
   its closing `</b>`) previously raised a `ValueError` inside PDF
   generation, silently losing the entire submission. (closes #52)
