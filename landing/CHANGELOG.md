@@ -6,6 +6,13 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.6.3] - 2026-08-07
+
+### Fixed
+
+- Standardised American spelling to British spelling ("colored" → "coloured")
+  in a changelog entry. (closes #58)
+
 ## [0.6.2] - 2026-08-04
 
 ### Changed
@@ -59,7 +66,7 @@ tag: `landing-v0.5.0`
 ### Changed
 
 - The pain-points copy's "where do I actually begin?" link is now bold and
-  colored `#C9A84C` — the same gold as the "Start My Plan" button's
+  coloured `#C9A84C` — the same gold as the "Start My Plan" button's
   background — so it reads as a CTA within the paragraph rather than just
   an italicized link. (closes #27)
 

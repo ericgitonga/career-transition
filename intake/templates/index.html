@@ -377,7 +377,7 @@
         <div class="accordion-body">
           <div class="mb-3">
             <label class="form-label">Preferred learning formats (select all that apply)</label>
-            {% for v in ["Self-paced online (Coursera, edX, LinkedIn Learning)","Cohort / community-based program","Intensive bootcamp","University / postgrad program","Mentorship / apprenticeship","Books & self-study","In-person workshops / conferences"] %}
+            {% for v in ["Self-paced online (Coursera, edX, LinkedIn Learning)","Cohort / community-based programme","Intensive bootcamp","University / postgrad programme","Mentorship / apprenticeship","Books & self-study","In-person workshops / conferences"] %}
             <div class="form-check"><input class="form-check-input" type="checkbox" name="learning_format" value="{{ v }}" id="lf{{ loop.index }}"><label class="form-check-label" for="lf{{ loop.index }}">{{ v }}</label></div>
             {% endfor %}
           </div>
