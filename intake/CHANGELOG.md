@@ -6,6 +6,18 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.28.0] - 2026-08-10
+### Added
+- Unit test suite (`tests/`, pytest) covering the pure security/PDF helpers
+  in `app.py` (`_safe_suffix`, `_clip`, `_sanitize`, `_log_field`,
+  `_client_slug`, `_qa`, `_is_entrepreneur_type`, `_sec4_pairs`) and
+  `report_builder.py`'s `esc`/`esc_markup` escaping functions — locking in
+  the S-20/R-05 markup-escaping incidents as permanent regression tests,
+  alongside (not instead of) the existing `e2e/` Playwright suite. Gated in
+  CI via a new required check, `.github/workflows/unit-intake.yml`. (closes #60)
+
+tag: `intake-v0.28.0`
+
 ## [0.27.4] - 2026-08-07
 ### Fixed
 - Standardised remaining American spellings to British spelling (recognised,

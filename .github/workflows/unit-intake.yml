@@ -1,0 +1,33 @@
+name: Unit tests (intake)
+
+# Gates a PR on intake/'s pytest unit suite (intake/tests/) — fast, pure-logic
+# coverage of the security/PDF helpers in app.py and report_builder.py,
+# alongside (not instead of) the e2e-intake.yml Playwright suite. Path-filtered
+# to intake/** since this is a monorepo shared with the landing/ Next.js app.
+# No server, secrets, or Playwright browser install needed — these are plain
+# function-level tests.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "intake/**"
+      - ".github/workflows/unit-intake.yml"
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: intake
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Run unit test suite
+        run: pytest -v
