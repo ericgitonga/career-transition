@@ -19,6 +19,7 @@ generate_areas_to_improve_pdf.py
 # Runtime artefacts
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # OS
 .DS_Store
