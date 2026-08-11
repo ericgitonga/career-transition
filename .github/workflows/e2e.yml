@@ -17,6 +17,25 @@ on:
       - ".github/workflows/e2e.yml"
 
 jobs:
+  lint:
+    # Independently gated so a lint regression can't merge just because it
+    # doesn't happen to break the build (see issue #62) — landing's ESLint
+    # config existed but was never invoked in CI.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: landing
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - run: npm run lint
+
   e2e:
     runs-on: ubuntu-latest
     defaults:

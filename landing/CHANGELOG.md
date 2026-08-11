@@ -6,6 +6,17 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.6.4] - 2026-08-11
+
+### Added
+- ESLint now runs as its own independently-gated CI check (`lint` job in
+  `.github/workflows/e2e.yml`) — it was configured in `package.json` but
+  never invoked in CI, so a lint regression that didn't break the build
+  could merge unnoticed. Also brings `package.json`'s `"version"` back in
+  sync with this file (it had drifted to 0.6.2). (closes #62)
+
+tag: `landing-v0.6.4`
+
 ## [0.6.3] - 2026-08-07
 
 ### Fixed
