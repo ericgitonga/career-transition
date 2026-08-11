@@ -230,6 +230,26 @@ def render_plain_list_section(doc, heading, items):
         _run(p, f"•  {item}", size=9)
 
 
+def render_references(doc, entries):
+    """entries: list of {name, title, org, phone (optional), email (optional)}."""
+    section_header(doc, "References")
+    for e in entries:
+        p = doc.add_paragraph()
+        p.paragraph_format.space_after = Pt(1)
+        _run(p, e["name"], bold=True, size=9)
+        _run(p, f" — {e['title']}, {e['org']}", size=9)
+
+        contact_bits = []
+        if e.get("phone"):
+            contact_bits.append(f"Tel: {e['phone']}")
+        if e.get("email"):
+            contact_bits.append(f"Email: {e['email']}")
+        if contact_bits:
+            p2 = doc.add_paragraph()
+            p2.paragraph_format.space_after = Pt(4)
+            _run(p2, "  ·  ".join(contact_bits), size=9, color=GRAY)
+
+
 def build_cv_docx(data, output_path):
     doc = _setup_document()
     client = data["client"]
@@ -252,6 +272,8 @@ def build_cv_docx(data, output_path):
         render_plain_list_section(doc, "Certifications", data["certifications"])
     if data.get("professional_courses"):
         render_plain_list_section(doc, "Professional Courses (Selected)", data["professional_courses"])
+    if data.get("references"):
+        render_references(doc, data["references"])
 
     doc.core_properties.title = f"{client['name']} — CV"
     doc.save(output_path)

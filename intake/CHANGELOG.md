@@ -6,6 +6,16 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.29.0] - 2026-08-11
+### Added
+- Optional `references` field in the CV schema, rendered as a "References"
+  section (name/title/org plus a phone/email contact line) in both
+  `cv_builder.py`'s PDF output and `cv_docx_builder.py`'s .docx output.
+  Omitted by default — added to a client's `cv_data.py` only on an
+  explicit request to include referees on the document itself. (closes #66)
+
+tag: `intake-v0.29.0`
+
 ## [0.28.0] - 2026-08-10
 ### Added
 - Unit test suite (`tests/`, pytest) covering the pure security/PDF helpers

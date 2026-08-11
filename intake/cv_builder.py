@@ -134,6 +134,25 @@ def render_plain_list_section(heading, items, story):
     story.append(Spacer(1, 8))
 
 
+def render_references(entries, story):
+    """entries: list of {name, title, org, phone (optional), email (optional)}."""
+    section_header("References", story)
+    for e in entries:
+        story.append(Paragraph(
+            f"<b>{esc(e['name'])}</b> — {esc(e['title'])}, {esc(e['org'])}",
+            CV_ST["condensed"],
+        ))
+        contact_bits = []
+        if e.get("phone"):
+            contact_bits.append(f"Tel: {e['phone']}")
+        if e.get("email"):
+            contact_bits.append(f"Email: {e['email']}")
+        if contact_bits:
+            story.append(Paragraph(esc("  ·  ".join(contact_bits)), CV_ST["contact"]))
+        story.append(Spacer(1, 4))
+    story.append(Spacer(1, 4))
+
+
 def build_cv(data, output_path):
     client = data["client"]
     doc_title = f"{client['name']} — CV"
@@ -167,5 +186,7 @@ def build_cv(data, output_path):
         render_plain_list_section("Certifications", data["certifications"], story)
     if data.get("professional_courses"):
         render_plain_list_section("Professional Courses (Selected)", data["professional_courses"], story)
+    if data.get("references"):
+        render_references(data["references"], story)
 
     doc.build(story, onFirstPage=footer_canvas_factory(doc_title), onLaterPages=footer_canvas_factory(doc_title))
