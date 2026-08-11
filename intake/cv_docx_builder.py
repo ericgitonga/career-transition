@@ -144,8 +144,8 @@ def render_competencies(doc, items):
     table = doc.add_table(rows=len(left), cols=2)
     table.alignment = WD_TABLE_ALIGNMENT.LEFT
     _no_borders(table)
-    for i, (l, r) in enumerate(zip(left, right)):
-        for col, val in ((0, l), (1, r)):
+    for i, (l_val, r_val) in enumerate(zip(left, right)):
+        for col, val in ((0, l_val), (1, r_val)):
             cell = table.cell(i, col)
             cell.paragraphs[0].paragraph_format.space_after = Pt(2)
             if val:

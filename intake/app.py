@@ -773,7 +773,7 @@ def submit():
         emphasise=_clip(request.form.get("emphasise"), 5000),
         background_notes=_clip(request.form.get("background_notes"), 5000),
         portfolio_has_work=_clip(request.form.get("portfolio_has_work"), 10),
-        portfolio_links=[_clip(l.strip(), 500) for l in request.form.getlist("portfolio_links") if l.strip()],
+        portfolio_links=[_clip(link.strip(), 500) for link in request.form.getlist("portfolio_links") if link.strip()],
         anything_else=_clip(request.form.get("anything_else"), 5000),
         wants_cv_edit=bool(request.form.get("wants_cv_edit")),
         current_title=_clip(request.form.get("current_title"), 200),

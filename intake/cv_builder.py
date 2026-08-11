@@ -27,8 +27,7 @@ from reportlab.platypus import (
 )
 
 from report_builder import (
-    NAVY, TEAL, GOLD, MGRAY, BLACK, WHITE,
-    W, H, MARGIN, INNER_W,
+    NAVY, TEAL, GOLD, BLACK, MARGIN, INNER_W,
     two_col, data_table, rule, footer_canvas_factory, esc,
 )
 
