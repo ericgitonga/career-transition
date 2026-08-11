@@ -14,6 +14,13 @@ user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
   never invoked in CI, so a lint regression that didn't break the build
   could merge unnoticed. Also brings `package.json`'s `"version"` back in
   sync with this file (it had drifted to 0.6.2). (closes #62)
+- Added a trivial `unit` job to `e2e.yml`, discovered as a blocker while
+  merging the above: the ruleset requires a `unit` status check, but it was
+  only ever posted by `unit-intake.yml` (path-filtered to `intake/**`), so
+  a landing-only PR could never satisfy it. `landing/` has no unit-test
+  suite of its own to actually run yet, so this job is a placeholder —
+  mirrors how `e2e`/`e2e-intake.yml` already share a job name so either
+  app's changes satisfy that check standalone.
 
 tag: `landing-v0.6.4`
 
