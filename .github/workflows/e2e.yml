@@ -18,17 +18,28 @@ on:
 
 jobs:
   unit:
-    # The ruleset requires a "unit" status check (satisfied on intake-only
-    # PRs by unit-intake.yml's job of the same name), but landing/ has no
-    # unit-test suite of its own — nothing here to actually run. Without
-    # this job, a landing-only PR could never satisfy "unit" at all (it's
-    # only ever posted by a workflow path-filtered to intake/**), which is
-    # exactly what blocked PR #63 from merging. This mirrors "e2e", which
+    # The ruleset requires a "unit" status check (also satisfied on
+    # intake-only PRs by unit-intake.yml's job of the same name) — without
+    # this job, a landing-only PR could never satisfy "unit" at all, which
+    # is exactly what blocked PR #63 from merging. Mirrors "e2e", which
     # already works this way: both e2e.yml and e2e-intake.yml post a
     # same-named check, so either app's changes satisfy it standalone.
+    # Runs Vitest (src/app/page.test.ts) over the page's content data and
+    # constants — page.tsx has no other pure logic to unit-test.
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: landing
     steps:
-      - run: echo "landing/ has no unit-test suite yet — nothing to run."
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - run: npm run test
 
   lint:
     # Independently gated so a lint regression can't merge just because it

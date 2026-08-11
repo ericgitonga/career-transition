@@ -6,6 +6,19 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.6.5] - 2026-08-11
+
+### Added
+- Real Vitest unit suite (`src/app/page.test.ts`, 7 tests) covering the
+  page's content data and constants (`DELIVERABLES`, `STEPS`,
+  `TESTIMONIALS`, `PAIN_POINTS`, `WHO_FOR`, `WHO_NOT_FOR`, `INTAKE_URL`,
+  `CONTACT_EMAIL`) — page.tsx has no other pure logic to unit-test, but
+  these are real existing values worth asserting non-empty/well-formed
+  rather than fabricated test targets. Replaces the `unit` job's `echo`
+  placeholder from #62/PR #63 with an actual test run. (closes #64)
+
+tag: `landing-v0.6.5`
+
 ## [0.6.4] - 2026-08-11
 
 ### Added
