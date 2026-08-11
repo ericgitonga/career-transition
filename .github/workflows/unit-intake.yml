@@ -1,4 +1,4 @@
-name: Unit tests (intake)
+name: Unit tests & lint (intake)
 
 # Gates a PR on intake/'s pytest unit suite (intake/tests/) — fast, pure-logic
 # coverage of the security/PDF helpers in app.py and report_builder.py,
@@ -6,6 +6,12 @@ name: Unit tests (intake)
 # to intake/** since this is a monorepo shared with the landing/ Next.js app.
 # No server, secrets, or Playwright browser install needed — these are plain
 # function-level tests.
+#
+# Also posts the "lint" status check (see #68): the ruleset requires "lint",
+# but the only other job with that name lives in e2e.yml, path-filtered to
+# landing/**. Without a same-named job here, an intake-only PR could never
+# satisfy "lint" at all — the same bug #63 hit for "unit" before unit's job
+# was duplicated here.
 
 on:
   pull_request:
@@ -31,3 +37,20 @@ jobs:
 
       - name: Run unit test suite
         run: pytest -v
+
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: intake
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Run ruff
+        run: ruff check .

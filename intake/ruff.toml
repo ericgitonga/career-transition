@@ -1,0 +1,10 @@
+exclude = ["Clients", "extras", "__pycache__"]
+
+# Scoped to ruff's own documented baseline default (pycodestyle errors +
+# pyflakes) rather than ruff's full opinionated rule catalogue -- this repo
+# has no prior lint history, and pulling in stylistic rule sets (import
+# sorting, flake8-simplify, pylint, etc.) all at once would force an
+# unrelated, wholesale reformatting pass. Real-bug-catching rules only:
+# unused imports/names, undefined names, syntax-level issues.
+[lint]
+select = ["E4", "E7", "E9", "F"]

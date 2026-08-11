@@ -27,8 +27,7 @@ from reportlab.lib.units import cm
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Preformatted,
-    HRFlowable, KeepTogether, Table, TableStyle, PageBreak,
+    SimpleDocTemplate, Paragraph, Spacer, HRFlowable, KeepTogether, Table, TableStyle, PageBreak,
 )
 
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "extras", "design_process.pdf")

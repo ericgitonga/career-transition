@@ -182,8 +182,10 @@ def two_col(left_items, right_items):
     left_cells  = [[Paragraph(f"• {esc(x)}", ST["bullet"])] for x in left_items]
     right_cells = [[Paragraph(f"• {esc(x)}", ST["bullet"])] for x in right_items]
     max_rows = max(len(left_cells), len(right_cells))
-    while len(left_cells)  < max_rows: left_cells.append([""])
-    while len(right_cells) < max_rows: right_cells.append([""])
+    while len(left_cells) < max_rows:
+        left_cells.append([""])
+    while len(right_cells) < max_rows:
+        right_cells.append([""])
     data = [[Table(left_cells, colWidths=[col]), Table(right_cells, colWidths=[col])]]
     t = Table(data, colWidths=[col + 3, col + 3])
     t.setStyle(TableStyle([

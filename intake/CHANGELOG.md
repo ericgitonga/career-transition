@@ -6,6 +6,27 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.29.1] - 2026-08-11
+### Fixed
+- Added a `lint` job to `unit-intake.yml` (ruff, scoped to `E4,E7,E9,F` via
+  the new `ruff.toml`) so intake-only PRs can satisfy the ruleset's
+  required "lint" status check — previously only `e2e.yml` (landing,
+  path-filtered to `landing/**`) posted a check by that name, so an
+  intake-only PR could never merge without an admin bypass. Same class of
+  bug as #63's `unit` fix. Also fixes the handful of pre-existing
+  violations this surfaced (unused imports, two ambiguous `l` variable
+  names, two multiple-statements-on-one-line). (closes #68)
+
+tag: `intake-v0.29.1`
+
+## [0.29.0] - 2026-08-11
+### Added
+- Optional `references` field in the CV schema, rendered as a "References"
+  section (name/title/org plus a phone/email contact line) in both
+  `cv_builder.py`'s PDF output and `cv_docx_builder.py`'s .docx output.
+  Omitted by default — added to a client's `cv_data.py` only on an
+  explicit request to include referees on the document itself. (closes #66)
+
 ## [0.28.0] - 2026-08-10
 ### Added
 - Unit test suite (`tests/`, pytest) covering the pure security/PDF helpers
