@@ -1,12 +1,12 @@
-const INTAKE_URL = "https://career-transition-intake.vercel.app";
-const CONTACT_EMAIL = "gitonga@gmail.com";
+export const INTAKE_URL = "https://career-transition-intake.vercel.app";
+export const CONTACT_EMAIL = "gitonga@gmail.com";
 
-type Deliverable = {
+export type Deliverable = {
   title: string;
   description: string;
 };
 
-const DELIVERABLES: Deliverable[] = [
+export const DELIVERABLES: Deliverable[] = [
   {
     title: "Where you stand today",
     description:
@@ -51,34 +51,34 @@ const DELIVERABLES: Deliverable[] = [
   },
 ];
 
-const PAIN_POINTS: string[] = [
+export const PAIN_POINTS: string[] = [
   "Tired of collecting career advice from podcasts and LinkedIn posts that never turns into an actual next step?",
   "Spent a weekend making notes, watching videos, and bookmarking courses — and you're no closer to a plan than when you started?",
   "Know you're capable of more, but can't figure out how to say “10 years in regulatory compliance” in the language a new industry actually listens for?",
   "Watched a colleague make the leap into something new and wondered, quietly, why you're still sitting on the same CV?",
 ];
 
-const WHO_FOR: string[] = [
+export const WHO_FOR: string[] = [
   "Mid-career professionals ready to pivot to a new sector or specialisation",
   "People leaving corporate employment to start their own consultancy or advisory practice",
   "Professionals who want to layer a new domain — AI, ESG, data compliance, digital transformation — onto an existing career",
   "Anyone who has tried to figure this out alone, generated a mess of notes and YouTube playlists, and still doesn't have a plan",
 ];
 
-const WHO_NOT_FOR: string[] = [
+export const WHO_NOT_FOR: string[] = [
   "Anyone looking for a quick CV reformat rather than an actual transition strategy",
   "Anyone who wants a six-week coaching relationship with weekly check-in calls",
   "Anyone hoping a document alone will do the work — the plan tells you exactly what to do, but the doing is still yours",
   "Anyone not planning to actually move in the next 12–18 months (this is a working roadmap, not inspirational reading)",
 ];
 
-type Step = {
+export type Step = {
   number: string;
   title: string;
   description: string;
 };
 
-const STEPS: Step[] = [
+export const STEPS: Step[] = [
   {
     number: "1",
     title: "Send your materials",
@@ -98,12 +98,12 @@ const STEPS: Step[] = [
   },
 ];
 
-type Testimonial = {
+export type Testimonial = {
   quote: string;
   attribution: string;
 };
 
-const TESTIMONIALS: Testimonial[] = [
+export const TESTIMONIALS: Testimonial[] = [
   {
     quote: "Way above and beyond anything I had tried to generate on my own.",
     attribution: "Jacqueline - Compliance & Regulatory Professional",
