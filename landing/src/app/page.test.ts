@@ -4,6 +4,7 @@ import {
   DELIVERABLES,
   INTAKE_URL,
   PAIN_POINTS,
+  PRICING_TIERS,
   STEPS,
   TESTIMONIALS,
   WHO_FOR,
@@ -52,6 +53,32 @@ describe("TESTIMONIALS", () => {
     for (const t of TESTIMONIALS) {
       expect(t.quote.trim()).not.toBe("");
       expect(t.attribution.trim()).not.toBe("");
+    }
+  });
+});
+
+describe("PRICING_TIERS", () => {
+  it("has exactly two tiers", () => {
+    expect(PRICING_TIERS.length).toBe(2);
+  });
+
+  it("has no entries with an empty name, price, or empty features", () => {
+    for (const tier of PRICING_TIERS) {
+      expect(tier.name.trim()).not.toBe("");
+      expect(tier.introPrice.trim()).not.toBe("");
+      expect(tier.regularPrice.trim()).not.toBe("");
+      expect(tier.features.length).toBeGreaterThan(0);
+      for (const feature of tier.features) {
+        expect(feature.trim()).not.toBe("");
+      }
+    }
+  });
+
+  it("has extraNote only on the highlighted (Advanced) tier", () => {
+    for (const tier of PRICING_TIERS) {
+      if (tier.extraNote) {
+        expect(tier.highlighted).toBe(true);
+      }
     }
   });
 });

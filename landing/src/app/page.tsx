@@ -115,6 +115,43 @@ export const TESTIMONIALS: Testimonial[] = [
   },
 ];
 
+export type PricingTier = {
+  name: string;
+  introPrice: string;
+  regularPrice: string;
+  priceQualifier?: string;
+  extraNote?: string;
+  features: string[];
+  highlighted?: boolean;
+};
+
+export const INTRO_OFFER_END_DATE = "31 August 2026";
+
+export const PRICING_TIERS: PricingTier[] = [
+  {
+    name: "Basic",
+    introPrice: "KES 10,000",
+    regularPrice: "KES 18,500",
+    features: [
+      "The full 18-month Career Transition Plan",
+      "ATS-safe CV rewrite — PDF + Word (.docx)",
+    ],
+  },
+  {
+    name: "Advanced",
+    introPrice: "KES 14,000",
+    regularPrice: "KES 22,000",
+    priceQualifier: "covers your first job application",
+    extraNote:
+      "+ KES 4,500 flat for each additional application's notes and cover letter, requested later once you have a posting",
+    features: [
+      "Everything in Basic",
+      "One Notesletter included — interview prep notes + a tailored cover letter for one job application, redeemed whenever you have a posting in hand",
+    ],
+    highlighted: true,
+  },
+];
+
 function CtaButton({ className = "" }: { className?: string }) {
   return (
     <a
@@ -216,9 +253,10 @@ export default function Home() {
             not a five-minute AI summary with your name swapped in. The depth is the point.
           </p>
           <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600">
-            Want your CV itself condensed and reframed for your target role, alongside the
-            plan? Tick the box on the intake form and it&apos;s handled with the same care —
-            no separate reformatting service, no extra back-and-forth.
+            Every plan includes an ATS-safe CV rewrite as standard — your CV condensed and
+            reframed for your target role, delivered as both a PDF and an editable Word
+            document, alongside the plan itself. No separate reformatting service, no extra
+            back-and-forth, no need to ask.
           </p>
           <CtaButton className="mt-8" />
         </div>
@@ -289,29 +327,52 @@ export default function Home() {
       <section id="pricing" className="bg-white">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Simple, upfront pricing
+            Two tiers, one flat fee each
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            One flat fee for the complete Career Transition Plan. No hidden costs, no
-            upsells.
+            No hidden costs, no per-session billing — pick the tier that fits, pay once.
           </p>
-          <div className="mt-10 flex flex-col items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-10 text-center">
-            <span className="text-sm font-semibold uppercase tracking-wide text-[#0E7C7B]">
-              Introductory offer — 50% off, through August 31, 2026
-            </span>
-            <div className="flex items-baseline gap-3">
-              <span className="text-lg text-slate-400 line-through">KES 7,500</span>
-              <span className="text-4xl font-bold text-[#1B2A4A]">KES 3,750</span>
-            </div>
-            <p className="max-w-md text-sm leading-6 text-slate-600">
-              A one-time fee, paid when you submit your intake form.
-            </p>
-            <CtaButton className="mt-4" />
-            <p className="text-xs text-slate-500">
-              This introductory price ends August 31, 2026 — after that, it&apos;s back to
-              full price.
-            </p>
+          <div className="mt-10 grid gap-6 sm:grid-cols-2">
+            {PRICING_TIERS.map((tier) => (
+              <div
+                key={tier.name}
+                className={`flex flex-col items-center gap-4 rounded-lg border p-10 text-center ${
+                  tier.highlighted
+                    ? "border-[#C9A84C] bg-slate-50"
+                    : "border-slate-200 bg-slate-50"
+                }`}
+              >
+                <span className="text-sm font-semibold uppercase tracking-wide text-[#0E7C7B]">
+                  Introductory pricing — ends {INTRO_OFFER_END_DATE}
+                </span>
+                <h3 className="text-lg font-semibold text-[#1B2A4A]">{tier.name}</h3>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-lg text-slate-400 line-through">
+                    {tier.regularPrice}
+                  </span>
+                  <span className="text-4xl font-bold text-[#1B2A4A]">{tier.introPrice}</span>
+                </div>
+                {tier.priceQualifier && (
+                  <p className="text-sm text-slate-500">{tier.priceQualifier}</p>
+                )}
+                <ul className="mt-2 space-y-2 self-stretch text-left">
+                  {tier.features.map((feature) => (
+                    <li key={feature} className="flex gap-3 text-sm leading-6 text-slate-700">
+                      <span className="text-[#0E7C7B]">✓</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                {tier.extraNote && (
+                  <p className="text-xs text-slate-500">{tier.extraNote}</p>
+                )}
+                <CtaButton className="mt-4" />
+              </div>
+            ))}
           </div>
+          <p className="mt-6 text-sm leading-6 text-slate-600">
+            A one-time fee, paid when you submit your intake form.
+          </p>
         </div>
       </section>
 

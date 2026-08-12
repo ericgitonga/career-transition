@@ -6,6 +6,27 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.7.0] - 2026-08-12
+
+### Changed
+- Replaced the single flat-fee pricing card with two tiers — **Basic** (the
+  Career Transition Plan + an ATS-safe CV rewrite) and **Advanced** (Basic
+  plus one Notesletter — interview prep notes and a tailored cover letter —
+  included for a first job application, with additional applications billed
+  separately on the intake side). This retires the previous no-CV "Plan
+  only" product; Basic is now the pricing floor. Pricing: Basic KES
+  10,000 intro / KES 18,500 regular; Advanced KES 14,000 intro / KES 22,000
+  regular, both effective immediately through 31 August 2026. New
+  `PRICING_TIERS` typed array replaces the hardcoded card, following the
+  existing `DELIVERABLES`/`STEPS`/`TESTIMONIALS` convention. Section heading
+  changed from "Simple, upfront pricing" to "Two tiers, one flat fee each".
+  The "what you get" section's CV-rewrite mention updated to reflect it as
+  standard for every client rather than an opt-in checkbox. Grounded in the
+  market-pricing deep dive at `intake/extras/career-pricing.pdf`. Paired
+  with the intake-side tier-capture change (closes #71).
+
+tag: `landing-v0.7.0`
+
 ## [0.6.5] - 2026-08-11
 
 ### Added
