@@ -8,7 +8,7 @@ literal "<b>"/"<i>" tags consultants intentionally type as their bold/italic
 convention. Both failure modes get a regression test here.
 """
 
-from report_builder import esc, esc_markup
+from report_builder import esc, esc_markup, interview_prep_mailto, RECIPIENT
 
 
 # ── esc() — always escapes, no markup exceptions ───────────────────────────────
@@ -53,3 +53,34 @@ def test_esc_markup_mixed_content():
     assert "<b>HIGH</b>" in result
     assert "&lt;" in result and "&amp;" in result
     assert "score &lt; 5" in result
+
+
+# ── interview_prep_mailto() — the plan's closing interview-prep CTA link ───────
+
+def test_interview_prep_mailto_targets_recipient():
+    assert interview_prep_mailto("Alex Mercer").startswith(f"mailto:{RECIPIENT}?")
+
+
+def test_interview_prep_mailto_percent_encodes_spaces_and_punctuation():
+    # Client name flows into the "subject" query param, which must be a
+    # valid, spaceless URL component — not raw text with literal spaces.
+    mailto = interview_prep_mailto("Alex Mercer")
+    assert " " not in mailto
+    assert "Alex%20Mercer" in mailto
+
+
+def test_interview_prep_mailto_escapes_ampersand_for_xml_embedding():
+    # This string is embedded directly into a ReportLab Paragraph's
+    # pseudo-XML, so the subject/body separator must be "&amp;", not a bare
+    # "&" that ReportLab's parser would choke on.
+    mailto = interview_prep_mailto("Alex Mercer")
+    assert "&amp;body=" in mailto
+    assert "&body=" not in mailto
+
+
+def test_interview_prep_mailto_percent_encodes_name_with_special_characters():
+    # A client name containing "&" must not itself introduce a bare,
+    # unescaped "&" into the mailto string.
+    mailto = interview_prep_mailto("Smith & Jones")
+    assert "&body=" not in mailto or "&amp;body=" in mailto
+    assert "Smith%20%26%20Jones" in mailto

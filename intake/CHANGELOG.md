@@ -6,6 +6,17 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.30.0] - 2026-08-12
+### Added
+- Every delivered `[initials]_transition_plan.pdf` now closes with a `mailto:`
+  CTA offering bespoke interview prep notes (company/interviewer research,
+  dress/tone guidance, per-question talking points) for a specific upcoming
+  interview — rendered automatically by `report_builder.py`'s
+  `render_interview_prep_cta()`, no `plan_data.py` authoring required.
+  Documented as a repeatable on-request deliverable in SKILL.md's new
+  "Interview Prep Notes (On Client Request)" section, mirroring how CV
+  editing is documented. (closes #69)
+
 ## [0.29.1] - 2026-08-11
 ### Fixed
 - Added a `lint` job to `unit-intake.yml` (ruff, scoped to `E4,E7,E9,F` via
