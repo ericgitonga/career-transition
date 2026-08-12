@@ -463,6 +463,21 @@
       <div id="s9" class="accordion-collapse collapse">
         <div class="accordion-body">
           <div class="mb-3">
+            <label class="form-label">Your plan tier</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="plan_tier" value="basic" id="tier-basic" checked>
+              <label class="form-check-label" for="tier-basic">
+                Basic — Career Transition Plan + an ATS-safe CV rewrite (PDF + Word)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="plan_tier" value="advanced" id="tier-advanced">
+              <label class="form-check-label" for="tier-advanced">
+                Advanced — Basic, plus one Notesletter included: interview prep notes and a tailored cover letter for one job application, redeemed later once you have a specific posting
+              </label>
+            </div>
+          </div>
+          <div class="mb-3">
             <label class="form-label">Who will see this plan?</label>
             {% for v in ["Just me — personal accountability tool","Me and my family / partner","Me and my employer or sponsor (they are funding the transition)","I may share it with potential employers or networks"] %}
             <div class="form-check"><input class="form-check-input" type="radio" name="plan_audience" value="{{ v }}" id="pa{{ loop.index }}"><label class="form-check-label" for="pa{{ loop.index }}">{{ v }}</label></div>
@@ -491,14 +506,6 @@
               </div>
             </div>
             <button type="button" id="add-portfolio-link" class="btn btn-sm btn-outline-secondary mt-1">+ Add another link</button>
-          </div>
-          <div class="mb-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="wants_cv_edit" value="yes" id="wants-cv-edit">
-              <label class="form-check-label" for="wants-cv-edit">
-                I'd also like my CV condensed / reframed as a separate document, in addition to the Transition Plan
-              </label>
-            </div>
           </div>
           <div class="mb-3">
             <label class="form-label">Anything else you'd like your consultant to know? (optional)</label>

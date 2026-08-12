@@ -84,3 +84,27 @@ def test_interview_prep_mailto_percent_encodes_name_with_special_characters():
     mailto = interview_prep_mailto("Smith & Jones")
     assert "&body=" not in mailto or "&amp;body=" in mailto
     assert "Smith%20%26%20Jones" in mailto
+
+
+def test_interview_prep_mailto_basic_tier_states_the_flat_fee():
+    from urllib.parse import unquote
+
+    mailto = interview_prep_mailto("Alex Mercer", tier="basic")
+    assert "KES 4,500" in unquote(mailto)
+
+
+def test_interview_prep_mailto_advanced_tier_states_included():
+    from urllib.parse import unquote
+
+    mailto = interview_prep_mailto("Alex Mercer", tier="advanced")
+    body = unquote(mailto)
+    assert "included" in body
+    assert "KES 4,500" not in body
+
+
+def test_interview_prep_mailto_unknown_tier_falls_back_to_basic():
+    from urllib.parse import unquote
+
+    assert unquote(interview_prep_mailto("Alex Mercer", tier="")) == unquote(
+        interview_prep_mailto("Alex Mercer", tier="basic")
+    )
