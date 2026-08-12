@@ -6,6 +6,39 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.31.0] - 2026-08-12
+
+### Changed
+- Replaced the `wants_cv_edit` opt-in checkbox with a `plan_tier`
+  (basic/advanced) radio group in Section 9 — CV rewrite is now produced
+  unconditionally for every client, since Basic is the new pricing floor
+  (see `landing/`'s companion change, closes #71). Basic ships pre-checked
+  so the existing minimal-fields golden path keeps working unchanged.
+  `build_pdf()`'s cover-page banner (teal for Basic, gold for Advanced) and
+  `send_email()`'s subject/body now key off tier instead of CV-edit-yes/no;
+  the previously-duplicated banner wording is deduplicated into a shared
+  `_tier_banner_text()` helper.
+- `render_interview_prep_cta()` (`report_builder.py`) now varies its
+  Notesletter CTA copy by `client["tier"]`: Advanced clients are reminded
+  their first Notesletter is included, every other client sees the flat
+  KES 4,500 price. `plan_data.py`'s `client` dict gains an optional `tier`
+  field (falls back to `"basic"` for existing files).
+
+### Added
+- SKILL.md documents the new tier-aware Notesletter billing rule under
+  "Interview Prep Notes & Cover Letter"'s new **Billing** subsection: an
+  Advanced client's first use is tracked via a `.notesletter_available` /
+  `.notesletter_redeemed` marker-file convention in their client folder (no
+  database exists in this project); every other case is billed flat KES
+  4,500, invoiced manually. "CV Editing (On Client Request)" renamed to
+  "CV Rewrite (Standard, Every Client)" and rewritten to reflect it's no
+  longer opt-in.
+- New `intake/e2e/test_plan_tier.py` and `tests/test_app_helpers.py`
+  coverage for `_tier_banner_text()`; `tests/test_report_builder.py` gains
+  tier-aware `interview_prep_mailto()` coverage.
+
+tag: `intake-v0.31.0`
+
 ## [0.30.0] - 2026-08-12
 ### Added
 - Every delivered `[initials]_transition_plan.pdf` now closes with a `mailto:`

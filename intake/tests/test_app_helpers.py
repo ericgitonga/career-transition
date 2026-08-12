@@ -16,6 +16,7 @@ from app import (
     _safe_suffix,
     _sanitize,
     _sec4_pairs,
+    _tier_banner_text,
 )
 
 
@@ -179,3 +180,22 @@ def test_sec4_pairs_employed_no_skips_transition_question():
     labels = [label for label, _ in pairs]
     assert "Currently employed?" in labels
     assert "Transitioning while working or planning to leave?" not in labels
+
+
+# ── _tier_banner_text (plan_tier: basic/advanced) ──────────────────────────────
+
+def test_tier_banner_text_basic_mentions_cv_rewrite():
+    text = _tier_banner_text("basic")
+    assert "BASIC TIER" in text
+    assert "CV rewrite" in text
+
+
+def test_tier_banner_text_advanced_mentions_notesletter():
+    text = _tier_banner_text("advanced")
+    assert "ADVANCED TIER" in text
+    assert "Notesletter" in text
+
+
+@pytest.mark.parametrize("tier", ["", None, "premium", "Basic", "ADVANCED"])
+def test_tier_banner_text_unknown_input_falls_back_to_basic(tier):
+    assert _tier_banner_text(tier) == _tier_banner_text("basic")

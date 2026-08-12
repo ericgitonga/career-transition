@@ -335,6 +335,32 @@ _ct    = _S("CT",  fontSize=22,  textColor=WHITE, fontName="Helvetica-Bold", lea
 _cs    = _S("CS",  fontSize=14,  textColor=GOLD,  fontName="Helvetica-Bold", leading=20, alignment=TA_CENTER)
 _cn    = _S("CN",  fontSize=18,  textColor=WHITE, fontName="Helvetica-Bold", leading=24, alignment=TA_CENTER)
 _cv_flag = _S("CVF", fontSize=10, textColor=NAVY, fontName="Helvetica-Bold", leading=14, alignment=TA_CENTER)
+_tier_flag = _S("TF", fontSize=10, textColor=WHITE, fontName="Helvetica-Bold", leading=14, alignment=TA_CENTER)
+
+
+def _tier_banner_text(tier):
+    """Return the cover-page/email banner wording for a client's plan tier.
+
+    Args:
+        tier: "basic" or "advanced" — anything else is treated as "basic"
+              (fail closed, since Advanced grants extra value).
+
+    Returns:
+        The banner text for that tier.
+    """
+    if tier == "advanced":
+        return (
+            "★ ADVANCED TIER — this client's plan includes one Notesletter "
+            "(interview prep notes + a tailored cover letter for one job "
+            "application), redeemable later once they have a specific "
+            "posting. See SKILL.md's “Interview Prep Notes & Cover Letter” "
+            "workflow."
+        )
+    return (
+        "BASIC TIER — Career Transition Plan + an ATS-safe CV rewrite "
+        "(PDF + Word). See SKILL.md's “CV Rewrite (Standard, Every Client)” "
+        "workflow."
+    )
 
 
 def _banner(text):
@@ -487,24 +513,19 @@ def build_pdf(d, path):
     story += [cover, Spacer(1, 0.4*cm),
               HRFlowable(width=W, thickness=2, color=GOLD)]
 
-    if d.get("wants_cv_edit"):
-        flag = Table(
-            [[Paragraph(
-                "★ CV EDIT REQUESTED — this client also wants their CV condensed/"
-                "reframed as a separate document. See SKILL.md's “CV Editing (On "
-                "Client Request)” workflow.",
-                _cv_flag,
-            )]],
-            colWidths=[W],
-        )
-        flag.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, -1), GOLD),
-            ("TOPPADDING",    (0, 0), (-1, -1), 8),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-            ("LEFTPADDING",   (0, 0), (-1, -1), 14),
-            ("RIGHTPADDING",  (0, 0), (-1, -1), 14),
-        ]))
-        story.append(flag)
+    tier = d.get("plan_tier", "basic")
+    flag = Table(
+        [[Paragraph(_tier_banner_text(tier), _cv_flag if tier == "advanced" else _tier_flag)]],
+        colWidths=[W],
+    )
+    flag.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, -1), GOLD if tier == "advanced" else TEAL),
+        ("TOPPADDING",    (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING",   (0, 0), (-1, -1), 14),
+        ("RIGHTPADDING",  (0, 0), (-1, -1), 14),
+    ]))
+    story.append(flag)
 
     story.append(Spacer(1, 0.8*cm))
 
@@ -564,13 +585,13 @@ def build_pdf(d, path):
             ("Biggest uncertainties or fears",                        d.get("biggest_fears")),
         ]),
         ("Section 9 — About Your Plan", [
+            ("Plan tier",                                             "Advanced" if d.get("plan_tier") == "advanced" else "Basic"),
             ("Who will see this plan?",                               d.get("plan_audience")),
             ("Sections to emphasise",                                 d.get("emphasise")),
             ("Background notes / anything to handle with care",       d.get("background_notes")),
             ("Has existing portfolio work?",                          d.get("portfolio_has_work")),
             ("Portfolio links",                                       d.get("portfolio_links")),
             ("Anything else the consultant should know",              d.get("anything_else")),
-            ("Wants CV condensed/reframed as separate document",      "Yes" if d.get("wants_cv_edit") else "No"),
         ]),
     ]
 
@@ -615,7 +636,7 @@ def send_email(attachment_path, attachment_name, data, has_uploads: bool):
     location = _sanitize(data.get("city_country", "—"))
     timeline = _sanitize(data.get("timeline", "—"))
     target   = _sanitize(data.get("target_domain", "—"))
-    wants_cv_edit = bool(data.get("wants_cv_edit"))
+    tier     = data.get("plan_tier", "basic")
 
     body = (
         f"New career transition onboarding submission received.\n\n"
@@ -623,14 +644,12 @@ def send_email(attachment_path, attachment_name, data, has_uploads: bool):
         f"Email:    {email}\n"
         f"Location: {location}\n"
         f"Timeline: {timeline}\n"
-        f"Target:   {target}\n\n"
+        f"Target:   {target}\n"
+        f"Tier:     {tier.capitalize()}\n\n"
         f"Full intake responses are in the attached ZIP."
         + ("\nSupporting documents (CV, JD, etc.) are bundled in there too."
            if has_uploads else "")
-        + ("\n\n★ CV EDIT REQUESTED — this client also wants their CV "
-           "condensed/reframed as a separate document. See SKILL.md's "
-           "“CV Editing (On Client Request)” workflow."
-           if wants_cv_edit else "")
+        + f"\n\n{_tier_banner_text(tier)}"
     )
 
     with open(attachment_path, "rb") as f:
@@ -638,8 +657,8 @@ def send_email(attachment_path, attachment_name, data, has_uploads: bool):
 
     subject = (f"Career Transition Intake — {name} — "
                f"{datetime.now().strftime('%d %b %Y')}")
-    if wants_cv_edit:
-        subject = f"[CV EDIT] {subject}"
+    if tier == "advanced":
+        subject = f"[ADVANCED] {subject}"
 
     resend.Emails.send({
         "from":        os.environ.get("FROM_EMAIL", "onboarding@resend.dev"),
@@ -775,7 +794,7 @@ def submit():
         portfolio_has_work=_clip(request.form.get("portfolio_has_work"), 10),
         portfolio_links=[_clip(link.strip(), 500) for link in request.form.getlist("portfolio_links") if link.strip()],
         anything_else=_clip(request.form.get("anything_else"), 5000),
-        wants_cv_edit=bool(request.form.get("wants_cv_edit")),
+        plan_tier=request.form.get("plan_tier") if request.form.get("plan_tier") in ("basic", "advanced") else "basic",
         current_title=_clip(request.form.get("current_title"), 200),
         current_industry=_clip(request.form.get("current_industry"), 200),
         years_experience=_clip(request.form.get("years_experience"), 100),

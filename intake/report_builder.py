@@ -506,47 +506,83 @@ def render_section_11(data, story):
     story.append(PageBreak())
 
 
-# ── Closing CTA — Interview Prep Notes ─────────────────────────────────────────
-def interview_prep_mailto(client_name):
-    """Build the mailto: URI for the interview-prep-notes request CTA.
+# ── Closing CTA — Notesletter (Interview Prep Notes + Cover Letter) ────────────
+def interview_prep_mailto(client_name, tier="basic"):
+    """Build the mailto: URI for the Notesletter request CTA.
 
     Pulled out of render_interview_prep_cta() as pure logic so the
     URL-encoding (spaces, the em dash, a client name with "&" or other
     XML-special characters) can be unit-tested without a full ReportLab
     build. The "&" joining subject/body is escaped as "&amp;" since this
     string is embedded directly into a ReportLab Paragraph's pseudo-XML.
+
+    Args:
+        client_name: The client's full name.
+        tier: "basic" or "advanced" — Advanced clients are redeeming their
+              plan's included Notesletter; every other case is a flat
+              KES 4,500 paid request. Anything else is treated as "basic".
     """
-    subject = quote(f"Interview Prep Request — {client_name}")
-    body = quote(
-        "Hi Eric,\n\n"
-        "I have an upcoming interview and would like a set of interview prep "
-        "notes like the ones offered with my Career Transition Plan.\n\n"
-        "Company:\n"
-        "Role:\n"
-        "Interviewer name(s), if known:\n"
-        "Interview date:\n"
-    )
+    subject = quote(f"Notesletter Request — {client_name}")
+    if tier == "advanced":
+        body = quote(
+            "Hi Eric,\n\n"
+            "I'd like to redeem my plan's included Notesletter (interview "
+            "prep notes + a tailored cover letter) for an upcoming "
+            "application.\n\n"
+            "Company:\n"
+            "Role:\n"
+            "Interviewer name(s), if known:\n"
+            "Interview date:\n"
+        )
+    else:
+        body = quote(
+            "Hi Eric,\n\n"
+            "I'd like to order a Notesletter (interview prep notes + a "
+            "tailored cover letter) for an upcoming application — "
+            "KES 4,500 flat.\n\n"
+            "Company:\n"
+            "Role:\n"
+            "Interviewer name(s), if known:\n"
+            "Interview date:\n"
+        )
     return f"mailto:{RECIPIENT}?subject={subject}&amp;body={body}"
 
 
 def render_interview_prep_cta(client, story):
-    """Closing offer to build interview-prep notes for a specific upcoming
-    interview (company, role, interviewer research, dress/tone guidance,
-    per-question talking points), the same kind of document built for a past
-    client's real interview.
+    """Closing offer to build a Notesletter — interview prep notes (company
+    and interviewer research, dress/tone guidance, per-question talking
+    points) plus a tailored cover letter — for a specific upcoming job
+    application, the same kind of document built for a past client's real
+    interview.
 
-    An actual interview isn't known at intake time, so this can't be an
-    intake-form checkbox like CV editing — it has to surface later, from the
-    plan itself. A plain mailto: link keeps this to zero new infrastructure.
-    See SKILL.md's "Interview Prep Notes (On Client Request)" section.
+    An actual application isn't known at intake time, so this can't be an
+    intake-form field the way plan tier is — it has to surface later, from
+    the plan itself. A plain mailto: link keeps this to zero new
+    infrastructure. Copy varies by ``client.get("tier")``: Advanced clients
+    are reminded their first Notesletter is included; every other client
+    sees the flat KES 4,500 price. See SKILL.md's "Interview Prep Notes &
+    Cover Letter (On Client Request)" section, including its Billing
+    subsection on tracking whether an Advanced client's included use has
+    already been redeemed.
     """
-    mailto = interview_prep_mailto(client["name"])
-    text = (
-        "Have an interview lined up? "
-        f'<a href="{mailto}"><font color="#0E7C7B"><u>Click here to request a set of '
-        "interview prep notes</u></font></a> for that specific company and "
-        "interviewer — built the same way as the rest of this plan."
-    )
+    tier = client.get("tier", "basic")
+    mailto = interview_prep_mailto(client["name"], tier)
+    if tier == "advanced":
+        text = (
+            "Your plan includes one Notesletter — interview prep notes and "
+            "a tailored cover letter for one job application. "
+            f'<a href="{mailto}"><font color="#0E7C7B"><u>Click here to redeem it'
+            "</u></font></a> once you have a specific posting in hand — built "
+            "the same way as the rest of this plan."
+        )
+    else:
+        text = (
+            "Have an interview lined up? "
+            f'<a href="{mailto}"><font color="#0E7C7B"><u>Click here to request a '
+            "Notesletter</u></font></a> — interview prep notes and a tailored "
+            "cover letter for that specific company and interviewer, "
+            "KES 4,500 flat — built the same way as the rest of this plan."
+        )
     story.append(Spacer(1, 10))
     story.append(shaded_box([Paragraph(text, ST["body"])], border=GOLD))
     story.append(Spacer(1, 4))
