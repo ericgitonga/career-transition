@@ -9,7 +9,7 @@ SECTION_HEADINGS = {
     "what-you-get": "What you get",
     "who-for": "Who this is for",
     "how-it-works": "How it works",
-    "pricing": "Simple, upfront pricing",
+    "pricing": "Two tiers, one flat fee each",
     "testimonials": "What clients have said",
     "contact": "Ready to stop guessing and start executing?",
 }

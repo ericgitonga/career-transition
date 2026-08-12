@@ -8,7 +8,7 @@ def test_cta_buttons_link_to_intake():
         page.goto("/")
         ctas = page.get_by_role("link", name="Start My Plan")
         count = ctas.count()
-        assert count == 5, f"expected 5 CTA buttons, found {count}"
+        assert count == 6, f"expected 6 CTA buttons, found {count}"
         for i in range(count):
             assert ctas.nth(i).get_attribute("href") == INTAKE_URL
 
