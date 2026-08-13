@@ -3,6 +3,12 @@
 Fast, no real network calls: the Claude API is always mocked. Sets SECRET_KEY /
 PROGRESS_PAGE_PASSWORD before import since progress_app.py hard-requires them
 at module load (a local-only script, unlike app.py's Vercel-friendly fallback).
+
+Never loads the real Clients/Alex Mercer/plan_data.py: Clients/ is gitignored
+project-wide (see intake/.gitignore), so that file doesn't exist on a fresh
+checkout or in CI — only on a machine where it's been hand-authored locally.
+Tests use a small synthetic PLAN fixture matching plan_data.py's schema
+instead, same as the rest of this suite never reading real client data.
 """
 
 import json
@@ -17,6 +23,31 @@ import pytest
 
 import progress_app
 
+FAKE_PLAN = {
+    "opening_tagline": "This is a test tagline for a synthetic plan.",
+    "section_4": {
+        "blocks": [
+            {"paragraph": "An intro paragraph with no table."},
+            {
+                "table": {
+                    "headers": ["Sem", "Theme", "Duration", "Period", "Key Output"],
+                    "rows": [
+                        ["1", "Foundations", "3 months", "Jul - Sep 2026", "First deliverable"],
+                        ["2", "Build", "3 months", "Oct - Dec 2026", "Second deliverable"],
+                    ],
+                },
+            },
+        ],
+    },
+    "section_11": {
+        "metrics": [
+            {"milestone": "Milestone A completed", "target_date": "Jul 2026"},
+            {"milestone": "Milestone B completed", "target_date": "Sep 2026"},
+            {"milestone": "Milestone C completed", "target_date": "Dec 2026"},
+        ],
+    },
+}
+
 
 def _csrf_token(html_bytes):
     match = re.search(rb'name="csrf_token" value="([^"]+)"', html_bytes)
@@ -26,11 +57,12 @@ def _csrf_token(html_bytes):
 
 @pytest.fixture
 def plan():
-    return progress_app.load_plan()
+    return FAKE_PLAN
 
 
 @pytest.fixture
 def client(monkeypatch, tmp_path):
+    monkeypatch.setattr(progress_app, "load_plan", lambda: FAKE_PLAN)
     monkeypatch.setattr(progress_app, "MILESTONE_LOG_PATH", tmp_path / "milestone_log.json")
     monkeypatch.setattr(progress_app, "LATEST_NOTE_PATH", tmp_path / "latest_adaptation_note.json")
     progress_app.app.config["TESTING"] = True
