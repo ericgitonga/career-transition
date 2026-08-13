@@ -287,7 +287,7 @@ export default function Home() {
       </section>
 
       <section id="about" className="bg-slate-50">
-        <div className="mx-auto max-w-3xl px-6 py-20">
+        <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
             A note on who&apos;s behind this
           </h2>
