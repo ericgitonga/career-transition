@@ -38,6 +38,8 @@ def test_submission_survives_special_characters():
         page.fill('textarea[name="anything_else"]', SPECIAL_CHARS_ANSWER)
 
         page.set_input_files('input[name="cv_file"]', str(TEST_CV_PATH))
+        page.check("#consent-processing")
+        page.check("#consent-sensitive")
 
         with page.expect_download() as download_info:
             page.click("#submit-btn")

@@ -154,7 +154,7 @@
         <div class="accordion-body">
           <div class="mb-3">
             <label class="form-label">What is driving this transition?</label>
-            {% for v in ["Proactive — a new opportunity genuinely excites me","Reactive — layoff, redundancy, or job loss","Reactive — burnout or values misalignment","Reactive — life event (relocation, family, health)","Mixed — both push and pull factors"] %}
+            {% for v in ["Proactive — a new opportunity genuinely excites me","Reactive — layoff, redundancy, or job loss","Reactive — burnout or values misalignment","Reactive — life event (e.g. relocation)","Mixed — both push and pull factors"] %}
             <div class="form-check"><input class="form-check-input" type="radio" name="motivation_type" value="{{ v }}" id="mt{{ loop.index }}"><label class="form-check-label" for="mt{{ loop.index }}">{{ v }}</label></div>
             {% endfor %}
           </div>
@@ -307,8 +307,10 @@
             <input type="range" name="hours_per_week" class="form-range" min="2" max="60" step="1" value="10" id="hrs-range">
           </div>
           <div class="mb-3">
-            <label class="form-label">Financial runway</label>
-            <div class="form-text mb-2">How long you could cover your expenses if you stopped earning today.</div>
+            <label class="form-label">Financial runway <span class="badge bg-secondary fw-normal">Optional — sensitive</span></label>
+            <div class="form-text mb-2">How long you could cover your expenses if you stopped earning today. This
+              counts as financial information under Kenya's Data Protection Act; we ask only to pace your
+              transition plan realistically — skip it if you'd rather not share.</div>
             {% for v in ["Less than 3 months","3–6 months","6–12 months","12–18 months","18+ months","Currently employed — no runway needed"] %}
             <div class="form-check"><input class="form-check-input" type="radio" name="financial_runway" value="{{ v }}" id="fr{{ loop.index }}"><label class="form-check-label" for="fr{{ loop.index }}">{{ v }}</label></div>
             {% endfor %}
@@ -318,7 +320,9 @@
             <textarea name="geography" class="form-control" rows="2" placeholder="e.g. Must stay in Nairobi; open to East Africa; remote-only preferred"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Personal or family commitments affecting your study schedule (optional)</label>
+            <label class="form-label">Personal or family commitments affecting your study schedule <span class="badge bg-secondary fw-normal">Optional — sensitive</span></label>
+            <div class="form-text mb-2">This may count as sensitive personal data (family details) under Kenya's
+              Data Protection Act. We ask only to pace your learning plan realistically — feel free to skip it.</div>
             <textarea name="personal_commitments" class="form-control" rows="2" placeholder="e.g. Primary caregiver for young children — evenings only"></textarea>
           </div>
           <div class="mb-3">
@@ -359,8 +363,11 @@
             {% endfor %}
           </div>
           <div class="mb-3">
-            <label class="form-label">Minimum income level to protect (optional)</label>
-            <textarea name="income_floor" class="form-control" rows="2" placeholder="e.g. USD 60,000 / year — below this I cannot cover my obligations"></textarea>
+            <label class="form-label">Minimum income level to protect <span class="badge bg-secondary fw-normal">Optional — sensitive</span></label>
+            <div class="form-text mb-2">This is financial information under Kenya's Data Protection Act. We ask so
+              your plan doesn't recommend paths that undercut what you need to live on — skip it if you'd rather
+              not share.</div>
+            <textarea name="income_floor" class="form-control" rows="2" placeholder="e.g. USD 60,000 / year"></textarea>
           </div>
         </div>
       </div>
@@ -447,7 +454,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">What aspects of the transition feel most uncertain or daunting?</label>
-            <textarea name="biggest_fears" class="form-control" rows="4" placeholder="e.g. I worry my age is a disadvantage; I don't know anyone in this world"></textarea>
+            <textarea name="biggest_fears" class="form-control" rows="4" placeholder="e.g. I don't know anyone in this world; I'm not sure my experience translates"></textarea>
           </div>
         </div>
       </div>
@@ -474,7 +481,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Background notes / anything to handle with care (optional)</label>
-            <textarea name="background_notes" class="form-control" rows="3" placeholder="e.g. I'm proud of my conflict-affected settings work. Prefer not to highlight the gap in 2019–2020."></textarea>
+            <textarea name="background_notes" class="form-control" rows="3" placeholder="e.g. There's a gap in my CV I'd rather the plan didn't dwell on"></textarea>
           </div>
           <div class="mb-3">
             <label class="form-label">Do you have existing portfolio work or published work to share?</label>
@@ -594,12 +601,59 @@
   </div><!-- /accordion -->
 
   <hr class="my-4">
-  <p class="mb-3">
-    <strong>Your privacy:</strong> Everything you share here — your CV, your notes, your
-    documents — exists for one reason: building your Career Transition Plan. We don&rsquo;t
-    share it, sell it, or use it for anything else. Once your plan is generated, your files are
-    deleted from our servers immediately.
-  </p>
+
+  <div class="mb-3">
+    <p class="mb-2">
+      <strong>Your privacy:</strong> the information you share here is used to build your
+      Career Transition Plan and CV, and for nothing else.
+      <button class="btn btn-link p-0 align-baseline" type="button" data-bs-toggle="collapse"
+              data-bs-target="#privacy-details" aria-expanded="false" aria-controls="privacy-details"
+              id="privacy-details-toggle">
+        Privacy details &amp; your rights
+      </button>
+    </p>
+    <div class="collapse" id="privacy-details">
+      <div class="card card-body mb-3" style="font-size:.85rem;">
+        <p><strong>Who controls this data:</strong> Eric Gitonga (career-transition). Privacy questions:
+          <a href="mailto:gitonga@gmail.com">gitonga@gmail.com</a>.</p>
+        <p><strong>What we collect:</strong> your contact details, career history and goals, and any CV,
+          LinkedIn export, job description, or other files you upload. A few fields — financial runway,
+          minimum income level, and personal/family commitments — are financial or family information;
+          these are marked &ldquo;sensitive&rdquo; above and are always optional.</p>
+        <p><strong>Why:</strong> solely to draft your transition plan and CV.</p>
+        <p><strong>Who else sees it:</strong> your submission is processed using Anthropic's Claude AI
+          service (United States) to help draft your plan, and stored files are transmitted via Resend
+          (United States) to our business inbox. This app is hosted on Vercel (United States). All of
+          these involve transferring your data outside Kenya; we rely on each provider's standard
+          data-processing terms as the safeguard for that transfer. Email us if you'd like more detail
+          before submitting.</p>
+        <p><strong>How long we keep it:</strong> temporary upload files are deleted from our web server
+          within minutes of processing. Your submission and generated documents are then retained for 12
+          months after your final plan is delivered, then archived or deleted.</p>
+        <p class="mb-0"><strong>Your rights:</strong> you can ask to access, correct, or delete your data
+          at any time — email <a href="mailto:gitonga@gmail.com">gitonga@gmail.com</a> and we'll respond
+          within 14 days.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-check mb-2">
+    <input class="form-check-input" type="checkbox" name="consent_processing" value="yes"
+           id="consent-processing" required>
+    <label class="form-check-label" for="consent-processing">
+      I consent to Eric Gitonga collecting and processing the information I submit here, including in
+      the AI-assisted drafting of my plan and CV, as described above.
+    </label>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" name="consent_sensitive" value="yes"
+           id="consent-sensitive" required>
+    <label class="form-check-label" for="consent-sensitive">
+      If I've included any financial or personal-circumstance details in this form, I consent to their
+      use in tailoring my plan.
+    </label>
+  </div>
+
   <div id="status" class="alert d-none mb-3" role="alert"></div>
   <button type="submit" id="submit-btn" class="btn btn-submit btn-primary btn-lg w-100 text-white">
     Submit Onboarding Form

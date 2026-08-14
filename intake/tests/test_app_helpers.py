@@ -10,12 +10,14 @@ import pytest
 from app import (
     _clip,
     _client_slug,
+    _flag_sensitive_content,
     _is_entrepreneur_type,
     _log_field,
     _qa,
     _safe_suffix,
     _sanitize,
     _sec4_pairs,
+    _submission_id,
 )
 
 
@@ -179,3 +181,40 @@ def test_sec4_pairs_employed_no_skips_transition_question():
     labels = [label for label, _ in pairs]
     assert "Currently employed?" in labels
     assert "Transitioning while working or planning to leave?" not in labels
+
+
+# ── _submission_id (DPA gap-analysis: de-identified log correlation) ──────────
+
+def test_submission_id_is_deterministic():
+    assert _submission_id("Alex Mercer", "alex@example.com") == _submission_id(
+        "Alex Mercer", "alex@example.com"
+    )
+
+
+def test_submission_id_does_not_contain_plaintext_inputs():
+    sid = _submission_id("Alex Mercer", "alex@example.com")
+    assert "Alex" not in sid
+    assert "alex@example.com" not in sid
+
+
+def test_submission_id_differs_for_different_clients():
+    assert _submission_id("Alex Mercer", "alex@example.com") != _submission_id(
+        "Marie Curie", "marie@example.com"
+    )
+
+
+# ── _flag_sensitive_content (DPA gap-analysis: sensitive-keyword scan) ────────
+
+def test_flag_sensitive_content_matches_known_keywords():
+    hits = _flag_sensitive_content({"biggest_fears": "I worry my age is a disadvantage"})
+    assert "biggest_fears" in hits
+
+
+def test_flag_sensitive_content_ignores_ordinary_text():
+    hits = _flag_sensitive_content({"biggest_fears": "I don't know anyone in this world"})
+    assert hits == []
+
+
+def test_flag_sensitive_content_ignores_non_string_values():
+    hits = _flag_sensitive_content({"org_types": ["Startup", "Nonprofit"], "wants_cv_edit": True})
+    assert hits == []

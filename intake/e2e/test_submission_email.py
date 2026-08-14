@@ -11,9 +11,10 @@ header is "sent". Asserting on that visible sentence — rather than reading
 the header directly — exercises the exact same signal a real client sees,
 so this fails the same way the real incident would have looked to one.
 
-Only full_name and a CV upload are filled in: per SKILL.md, those are the
-only two requirements enforced by both form.js and submit() — everything
-else in the form is optional and irrelevant to whether the email fires.
+Only full_name, a CV upload, and the two consent checkboxes are filled in:
+per SKILL.md, those are the only requirements enforced by both form.js and
+submit() — everything else in the form is optional and irrelevant to
+whether the email fires.
 """
 
 from playwright.sync_api import expect
@@ -26,6 +27,8 @@ def test_submission_emails_consultant():
         page.goto("/")
         page.fill('input[name="full_name"]', "E2E Test Submission")
         page.set_input_files('input[name="cv_file"]', str(TEST_CV_PATH))
+        page.check("#consent-processing")
+        page.check("#consent-sensitive")
 
         with page.expect_download():
             page.click("#submit-btn")

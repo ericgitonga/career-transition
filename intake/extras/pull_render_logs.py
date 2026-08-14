@@ -1,6 +1,16 @@
 """
 Pull submission logs from Render and populate extras/onboard_metrics.xlsx (Sheet: intake).
 
+DPA gap-analysis fix: app.py's "Submission received"/"Submission complete" log
+lines used to carry the client's plaintext name/email — Render's log
+infrastructure is third-party and outside our retention control, so that was
+a PII exposure. app.py now logs a non-reversible per-client hash
+(``submission_id``) instead; this script correlates "received"/"complete"
+lines by that id (matching on the same nearby-in-time heuristic used
+previously for name) and the intake sheet no longer has Client Name/Email
+columns at all — cross-reference Submission ID against Clients/<Name>/ by
+hand if you need to know which client a row belongs to.
+
 Setup:
     conda run -n ds pip install requests openpyxl
     export RENDER_API_KEY=rnd_...            # Render dashboard → Account Settings → API Keys
@@ -44,8 +54,7 @@ ALT_FILL    = PatternFill("solid", fgColor="F4F6F9")
 INTAKE_COLS = [
     "Submission Date",
     "Submission Time (UTC)",
-    "Client Name",
-    "Client Email",
+    "Submission ID",
     "Target Domain",
     "Uploads",
     "Time on Form (min)",
@@ -72,9 +81,9 @@ _FORMULA_TRIGGERS = ("=", "+", "-", "@")
 def _safe_cell(value):
     """Neutralize spreadsheet formula injection (CWE-1236) in client-controlled strings.
 
-    Client Name and Target Domain originate from the public intake form, so a
-    submission like ``full_name = '=HYPERLINK("http://evil.example","x")'``
-    would otherwise become a live formula the moment this workbook is opened.
+    Target Domain originates from the public intake form, so a submission
+    like ``target_domain = '=HYPERLINK("http://evil.example","x")'`` would
+    otherwise become a live formula the moment this workbook is opened.
     Prefixing a leading apostrophe forces the cell to be read as literal text.
     """
     if isinstance(value, str) and value.startswith(_FORMULA_TRIGGERS):
@@ -175,15 +184,14 @@ def _fetch_all_submission_logs(owner_id, service_id, since_dt, until_dt, headers
 
 RE_RECEIVED = re.compile(
     r"Submission received: "
-    r"name=(?P<name>.+?) "
-    r"email=(?P<email>\S+) "
+    r"id=(?P<id>\S+) "
     r"target=(?P<target>.+?) "
     r"uploads=(?P<uploads>\d+)"
     r"(?:\s+time_on_form=(?P<time_on_form>\d+))?"
 )
 RE_COMPLETE = re.compile(
     r"Submission complete: "
-    r"name=(?P<name>.+?) "
+    r"id=(?P<id>\S+) "
     r"email_status=(?P<email_status>\S+) "
     r"attachment=(?P<attachment>\S+)"
 )
@@ -212,10 +220,12 @@ def _parse_entries(entries):
             d = m.groupdict()
             # S-16: app.py percent-encodes these fields before logging, so a
             # client-controlled value can never contain a literal delimiter
-            # (" uploads=", " email=", a newline, ...) that could hijack the
+            # (" uploads=", " target=", a newline, ...) that could hijack the
             # regex above. Decode back to the original text now that the
-            # field boundaries are already safely resolved.
-            for key in ("name", "email", "target", "time_on_form"):
+            # field boundaries are already safely resolved. "id" is a hash
+            # app.py generated itself, never client-controlled — no decoding
+            # needed.
+            for key in ("target", "time_on_form"):
                 if d.get(key) is not None:
                     d[key] = unquote(d[key])
             d["_dt"] = dt
@@ -225,8 +235,6 @@ def _parse_entries(entries):
         m = RE_COMPLETE.search(msg)
         if m:
             d = m.groupdict()
-            if d.get("name") is not None:
-                d["name"] = unquote(d["name"])
             d["_dt"] = dt
             complete_list.append(d)
 
@@ -234,14 +242,14 @@ def _parse_entries(entries):
     used = set()
 
     for recv in received_list:
-        name    = recv["name"]
+        submission_id = recv["id"]
         dt_recv = recv["_dt"]
         proc_secs    = ""
         email_status = ""
         attachment   = ""
 
         for i, comp in enumerate(complete_list):
-            if i in used or comp["name"] != name:
+            if i in used or comp["id"] != submission_id:
                 continue
             dt_comp = comp.get("_dt")
             if dt_recv and dt_comp and abs((dt_comp - dt_recv).total_seconds()) < 600:
@@ -257,8 +265,7 @@ def _parse_entries(entries):
         rows.append({
             "Submission Date":           dt_recv.strftime("%Y-%m-%d") if dt_recv else "",
             "Submission Time (UTC)":     dt_recv.strftime("%H:%M:%S") if dt_recv else "",
-            "Client Name":               name,
-            "Client Email":              recv.get("email", ""),
+            "Submission ID":             submission_id,
             "Target Domain":             recv.get("target", ""),
             "Uploads":                   int(recv.get("uploads", 0)),
             "Time on Form (min)":        tof_min,
@@ -305,7 +312,7 @@ def _existing_keys(ws):
 def _append_rows(ws, rows, cols, existing_keys):
     added = 0
     for row_data in rows:
-        key = (row_data.get("Submission Date", ""), row_data.get("Client Name", ""))
+        key = (row_data.get("Submission Date", ""), row_data.get("Submission ID", ""))
         if key in existing_keys:
             print(f"  Skipping duplicate: {key[1]} on {key[0]}")
             continue
