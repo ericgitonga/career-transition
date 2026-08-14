@@ -6,6 +6,35 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.31.0] - 2026-08-14
+### Added
+- Kenya Data Protection Act, 2019 remediation (closes #79): the single
+  privacy sentence above the submit button is replaced with a full s.29
+  notice (controller identity, data categories, purpose, named recipients —
+  Anthropic/Resend/Vercel — cross-border transfer statement, 12-month
+  retention period, and subject-rights process); two required consent
+  checkboxes (general processing, sensitive-category data) are hard
+  submission blockers, and a durable consent record (timestamp, text
+  version, which boxes were ticked) is now printed into every intake PDF as
+  a new Section 10.
+- `income_floor`, `financial_runway`, and `personal_commitments` are
+  relabelled as sensitive-category fields with helper text explaining why
+  they're asked for and that they're optional; example copy that cued
+  health/family disclosure (`motivation_type`, `biggest_fears`,
+  `background_notes`) is narrower.
+- A lightweight keyword scan flags (never blocks) a submission containing
+  likely sensitive free-text content, logged for operator review.
+- SKILL.md gains a "Data Retention & Subject Rights" section: a 12-month
+  post-delivery retention period, a quarterly review habit, and the runbook
+  for handling a client's access/correction/erasure request.
+### Changed
+- `app.py`'s submission log lines no longer carry the client's plaintext
+  name/email — Render's log infrastructure is third-party and outside our
+  retention control. Logs now carry a non-reversible per-client hash instead;
+  `extras/pull_render_logs.py` is updated to correlate "received"/"complete"
+  log lines by that hash rather than by name, and `onboard_metrics.xlsx`'s
+  intake sheet no longer has Client Name/Email columns.
+
 ## [0.30.0] - 2026-08-12
 ### Added
 - Every delivered `[initials]_transition_plan.pdf` now closes with a `mailto:`

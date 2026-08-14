@@ -33,6 +33,7 @@ Third audit (see extras/areas_to_improve.pdf for full findings):
         generation and losing the whole submission (Phase 5)
 """
 
+import hashlib
 import os
 import re
 import secrets
@@ -219,6 +220,42 @@ def _sanitize(value: str) -> str:
         ch for ch in (value or "")
         if unicodedata.category(ch)[0] != "C"
     ).strip()
+
+
+CONSENT_VERSION = "v1"
+
+
+def _submission_id(full_name: str, email: str) -> str:
+    """Derive a non-reversible per-submission identifier for logging.
+
+    DPA gap-analysis fix: application logs previously carried the client's
+    plaintext name/email (recoverable from third-party log infrastructure on
+    whatever platform hosts the app). This hash lets a log line be correlated
+    back to a specific submission for debugging without the log itself
+    carrying PII — the plaintext name/email lives only in the durable
+    Clients/ record.
+    """
+    return hashlib.sha256(f"{full_name}|{email}".encode()).hexdigest()[:12]
+
+
+# DPA gap-analysis fix: Kenya's DPA sensitive-personal-data categories
+# (health, ethnicity, religion, etc.) have no dedicated form field, but the
+# open free-text fields make incidental capture realistic. This scan flags
+# (never blocks) a submission containing likely sensitive content so it
+# isn't processed on the same undifferentiated path as routine fields.
+_SENSITIVE_KEYWORDS = re.compile(
+    r"\b(age|disabilit\w*|disabled|medical|pregnan\w*|religio\w*|ethnic\w*|hiv|health\w*)\b",
+    re.IGNORECASE,
+)
+
+
+def _flag_sensitive_content(d: dict) -> list:
+    """Return the names of free-text fields whose value matches a sensitive-category keyword."""
+    hits = []
+    for key, value in d.items():
+        if isinstance(value, str) and _SENSITIVE_KEYWORDS.search(value):
+            hits.append(key)
+    return sorted(hits)
 
 
 # ── S-08: HTTP security headers on every response ─────────────────────────────
@@ -423,8 +460,8 @@ def build_pdf(d, path):
     Builds a multi-page A4 document using ReportLab's Platypus layout engine.
     The document contains:
       - A navy cover block with the client's name and submission date.
-      - Nine labelled sections (Personal Information through Deliverable
-        Preferences), each opened by a navy banner and closed by a divider rule.
+      - Ten labelled sections (Personal Information through the Consent
+        Record), each opened by a navy banner and closed by a divider rule.
       - A footer on every page showing the client's name and page number.
 
     The function defines a nested ``footer`` callback that ReportLab calls on
@@ -572,6 +609,15 @@ def build_pdf(d, path):
             ("Anything else the consultant should know",              d.get("anything_else")),
             ("Wants CV condensed/reframed as separate document",      "Yes" if d.get("wants_cv_edit") else "No"),
         ]),
+        # DPA gap-analysis fix (s.32): a durable consent record travels with
+        # the submission itself, so it survives if a client later disputes
+        # what they agreed to.
+        ("Section 10 — Consent Record", [
+            ("Consented to processing (required)",       "Yes" if d.get("consent_processing") else "No"),
+            ("Consented to sensitive-data processing",    "Yes" if d.get("consent_sensitive") else "No"),
+            ("Consent text version",                      d.get("consent_version")),
+            ("Consent recorded at",                       d.get("consent_timestamp")),
+        ]),
     ]
 
     for title, pairs in sections:
@@ -714,7 +760,8 @@ def submit():
           - ``"failed"``  — email attempted but an exception was raised.
           - ``"skipped"`` — ``RESEND_API_KEY`` not configured; email not attempted.
 
-    Returns HTTP 400 if ``full_name`` is missing or an uploaded file type is not whitelisted.
+    Returns HTTP 400 if ``full_name`` is missing, either consent checkbox is
+    unticked, or an uploaded file type is not whitelisted.
     Returns HTTP 413 if the total upload size exceeds 4 MB (raised by Flask before this handler).
     Returns HTTP 429 if the rate limit is exceeded (raised by Flask-Limiter).
     Returns HTTP 500 if PDF generation raises an exception.
@@ -722,6 +769,14 @@ def submit():
     full_name = _clip(request.form.get("full_name", "").strip(), 200)
     if not full_name:
         return "Please enter your full name.", 400
+
+    # DPA gap-analysis fix (s.32): both consent checkboxes are hard submission
+    # blockers, same tier as full_name — no lawful basis for processing
+    # without them.
+    consent_processing = bool(request.form.get("consent_processing"))
+    consent_sensitive = bool(request.form.get("consent_sensitive"))
+    if not (consent_processing and consent_sensitive):
+        return "Please tick both consent checkboxes before submitting.", 400
 
     slug = _client_slug(full_name)
 
@@ -781,6 +836,10 @@ def submit():
         years_experience=_clip(request.form.get("years_experience"), 100),
         existing_certs=_clip(request.form.get("existing_certs"), 500),
         key_skills=_clip(request.form.get("key_skills"), 2000),
+        consent_processing=consent_processing,
+        consent_sensitive=consent_sensitive,
+        consent_version=CONSENT_VERSION,
+        consent_timestamp=datetime.now().isoformat(timespec="seconds"),
     )
 
     # Require either a CV/business-profile upload or the background fallback
@@ -848,12 +907,23 @@ def submit():
     # S-15: structured submission log for audit trail and abuse detection
     # S-16: every value is percent-encoded (_log_field) — logged fields are
     # parsed by extras/pull_render_logs.py's regex, so an embedded newline or
-    # a literal " uploads="/" email=" substring here could forge a fake log
+    # a literal " uploads="/" target=" substring here could forge a fake log
     # line, or hijack field boundaries within a real one.
+    # DPA gap-analysis fix: name/email are hashed (S-15 audit trail doesn't
+    # need plaintext PII) rather than logged directly — Render's log
+    # infrastructure is third-party and outside our retention control.
+    # extras/pull_render_logs.py correlates received/complete lines and keys
+    # onboard_metrics.xlsx by this id rather than by name.
+    submission_id = _submission_id(data.get("full_name", ""), data.get("client_email", ""))
+    sensitive_hits = _flag_sensitive_content(data)
+    if sensitive_hits:
+        app.logger.warning(
+            "Submission %s flagged for sensitive-content review: fields=%s",
+            submission_id, ",".join(sensitive_hits),
+        )
     app.logger.info(
-        "Submission received: name=%s email=%s target=%s uploads=%d time_on_form=%s",
-        _log_field(data.get("full_name", "")), _log_field(data.get("client_email", "")),
-        _log_field(data.get("target_domain", "")), len(uploads),
+        "Submission received: id=%s target=%s uploads=%d time_on_form=%s",
+        submission_id, _log_field(data.get("target_domain", "")), len(uploads),
         _log_field(data.get("time_on_form_seconds", "")),
     )
 
@@ -873,10 +943,11 @@ def submit():
             email_status = "failed"
 
     # S-15: log outcome so silent email failures are visible in server logs
-    # S-16: name is percent-encoded for the same reason as the line above
+    # DPA gap-analysis fix: keyed by the same hash as the "received" line
+    # above, not by name — see comment there.
     app.logger.info(
-        "Submission complete: name=%s email_status=%s attachment=%s",
-        _log_field(data.get("full_name", "")), email_status, attachment_name,
+        "Submission complete: id=%s email_status=%s attachment=%s",
+        submission_id, email_status, attachment_name,
     )
 
     # S-07: delete all temp files after response is built, regardless of outcome
