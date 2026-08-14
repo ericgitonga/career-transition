@@ -9,8 +9,6 @@ enforces the same rule app.js/the browser does.
 Uses Alex Mercer's fixture data (see SKILL.md's "Testing the Intake Form").
 """
 
-from playwright.sync_api import expect
-
 from _common import TEST_CV_PATH, BASE_URL, browser_page
 
 
