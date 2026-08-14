@@ -6,6 +6,18 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.6.6] - 2026-08-14
+
+### Security
+- Bumped `next`/`eslint-config-next` 16.2.11 → 16.3.0, clearing all 5 high-severity
+  npm advisories (`brace-expansion`, `js-yaml`, `postcss`, `sharp`) — 0 vulnerabilities
+  after the bump plus `npm audit fix`.
+- Added baseline HTTP security headers (`X-Content-Type-Options`, `X-Frame-Options: DENY`,
+  `Referrer-Policy`, `Permissions-Policy`, CSP) matching the intake app's existing header
+  set, closing the gap flagged by the repo-wide security audit. (closes #80)
+
+tag: `landing-v0.6.6`
+
 ## [0.6.5] - 2026-08-11
 
 ### Added
