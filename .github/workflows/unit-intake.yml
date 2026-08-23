@@ -2,26 +2,48 @@ name: Unit tests & lint (intake)
 
 # Gates a PR on intake/'s pytest unit suite (intake/tests/) — fast, pure-logic
 # coverage of the security/PDF helpers in app.py and report_builder.py,
-# alongside (not instead of) the e2e-intake.yml Playwright suite. Path-filtered
-# to intake/** since this is a monorepo shared with the landing/ Next.js app.
-# No server, secrets, or Playwright browser install needed — these are plain
+# alongside (not instead of) the e2e-intake.yml Playwright suite. No server,
+# secrets, or Playwright browser install needed — these are plain
 # function-level tests.
 #
 # Also posts the "lint" status check (see #68): the ruleset requires "lint",
-# but the only other job with that name lives in e2e.yml, path-filtered to
+# but the only other job with that name lives in e2e.yml, scoped to
 # landing/**. Without a same-named job here, an intake-only PR could never
 # satisfy "lint" at all — the same bug #63 hit for "unit" before unit's job
 # was duplicated here.
+#
+# Always triggers (no top-level `paths:` filter) — the `changes` job below
+# decides whether intake/** actually changed, and `unit`/`lint` are skipped
+# (not un-triggered) when it didn't. A required status check that never
+# runs blocks merge indefinitely under this repo's ruleset; a job that runs
+# and reports "skipped" satisfies it. This closes #90, which a
+# root-README-only PR (#89) hit: the old `paths:`-filtered trigger meant
+# "e2e"/"unit"/"lint" never ran at all for a change outside landing/** and
+# intake/**, and there was no way through short of an admin bypass.
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "intake/**"
-      - ".github/workflows/unit-intake.yml"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      intake: ${{ steps.filter.outputs.intake }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            intake:
+              - 'intake/**'
+              - '.github/workflows/unit-intake.yml'
+
   unit:
+    needs: changes
+    if: needs.changes.outputs.intake == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,6 +61,8 @@ jobs:
         run: pytest -v
 
   lint:
+    needs: changes
+    if: needs.changes.outputs.intake == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
