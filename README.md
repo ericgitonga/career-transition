@@ -23,9 +23,12 @@ historical archive; this repo is where active development happens going forward.
 
 ## CI
 
-`.github/workflows/e2e.yml` runs `landing/`'s Playwright E2E suite, path-filtered to
-`landing/**` so an `intake/`-only change doesn't trigger it (and vice versa — `intake/`
-has no automated suite of its own yet).
+Each app has its own path-filtered workflows, so a change to one doesn't trigger the other's
+suite:
+
+- `landing/`: `.github/workflows/e2e.yml` runs its Playwright E2E suite (`landing/**`).
+- `intake/`: `.github/workflows/e2e-intake.yml` runs its Playwright E2E suite and
+  `.github/workflows/unit-intake.yml` runs its pytest unit suite and lint (`intake/**`).
 
 ## Deployment
 
