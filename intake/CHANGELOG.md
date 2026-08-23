@@ -6,6 +6,21 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.31.1] - 2026-08-24
+### Fixed
+- `hosting.pdf` regenerated for the current Vercel deployment (closes #91):
+  replaces the old Render-specific walkthrough (render.yaml, Render's
+  dashboard/environment UI, the onrender.com URL, 15-minute free-tier
+  spin-down) with the actual one-time setup — importing the monorepo with
+  Root Directory set to `intake`, `vercel.json`'s zero-config Flask
+  detection, and the three environment variables production depends on
+  (`RESEND_API_KEY`, `SECRET_KEY`, `RATELIMIT_STORAGE_URI` via an Upstash
+  Redis database from the Vercel Marketplace). Also updates the client
+  experience description from the old dark theme to the current light
+  theme, and `intake/README.md`'s note pointing at the (now current) guide.
+
+tag: `intake-v0.31.1`
+
 ## [0.31.0] - 2026-08-14
 ### Added
 - Kenya Data Protection Act, 2019 remediation (closes #79): the single

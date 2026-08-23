@@ -134,14 +134,15 @@ def section_header(text, s):
 def build_story(s):
     """Assemble the full list of ReportLab flowables that make up the PDF body.
 
-    Constructs the document narrative in four logical sections:
+    Constructs the document narrative in five logical sections:
       1. Introduction — overview of the stack and deployment model.
-      2. One-Time Setup — five numbered steps covering Render account creation,
-         GitHub connection, web service configuration, Resend sign-up, and
-         API key injection.
+      2. One-Time Setup — four numbered steps covering Vercel project import
+         (with the monorepo Root Directory setting), Resend sign-up, and the
+         three environment variables production actually depends on.
       3. How It Works — client-facing UX description and sender address notes.
-      4. Deploying Updates — the single ``git push`` workflow.
-      5. After Deployment — permanent URL, free-tier spin-down behaviour, and
+      4. Deploying Updates — the single ``git push`` workflow and the
+         Preview/Production promotion model.
+      5. After Deployment — permanent URL, cold-start behaviour, and the
          API key rotation procedure.
 
     Each major section opens with a ``section_header`` banner and closes with
@@ -157,15 +158,16 @@ def build_story(s):
     """
     story = []
 
-    story.append(Paragraph("Hosting the Career Transition Intake Form on Render", s["h1"]))
+    story.append(Paragraph("Hosting the Career Transition Intake Form on Vercel", s["h1"]))
     story.append(rule(color=GOLD, thickness=1.5, before=2, after=10))
     story.append(Paragraph(
-        "The intake form is a Flask web application hosted on Render as a Python web service. "
-        "It collects structured client responses across 10 sections, generates PDF, "
-        "and emails it automatically to the consultant via Resend — no SMTP configuration "
-        "or credentials are shown to clients. "
-        "Render watches the GitHub repo (<b>ericgitonga/career-transition-intake</b>) and "
-        "redeploys automatically on every push to <b>main</b>.",
+        "The intake form is a Flask web application hosted on Vercel as a Serverless "
+        "(Fluid Compute) Function. It collects structured client responses across 10 "
+        "sections, generates a PDF, and emails it automatically to the consultant via "
+        "Resend — no SMTP configuration or credentials are shown to clients. Vercel is "
+        "connected to the GitHub repo (<b>ericgitonga/career-transition</b>, a monorepo "
+        "shared with the public landing page) and redeploys the intake app automatically "
+        "on every push to <b>main</b>.",
         s["body"],
     ))
     story.append(Paragraph(
@@ -181,33 +183,29 @@ def build_story(s):
         Paragraph("These steps are required once before the first deployment.", s["note"]),
     ]))
 
-    story.append(Paragraph("1. Create a Render account", s["h3"]))
+    story.append(Paragraph("1. Create a Vercel account", s["h3"]))
     story.append(Paragraph(
-        "Go to <b>https://render.com</b> and sign up — the free tier requires no credit card.",
+        "Go to <b>https://vercel.com</b> and sign up with GitHub — the Hobby tier requires "
+        "no credit card.",
         s["body"],
     ))
 
-    story.append(Paragraph("2. Connect your GitHub account", s["h3"]))
-    story.append(Paragraph(
-        "In the Render dashboard, click your avatar → <b>Account Settings → Git Provider → "
-        "Connect GitHub</b>. Authorise Render to access the "
-        "<b>ericgitonga/career-transition-intake</b> repo.",
-        s["body"],
-    ))
-
-    story.append(Paragraph("3. Create a new Web Service", s["h3"]))
+    story.append(Paragraph("2. Import the repository as a new project", s["h3"]))
     for line in [
-        "Click <b>New → Web Service</b>",
-        "Select the <b>career-transition-intake</b> repository",
-        "Render detects <b>render.yaml</b> automatically and fills in the settings",
-        "Confirm: Runtime <b>Python</b>, Build Command <b>pip install -r requirements.txt</b>, "
-        "Start Command <b>gunicorn app:app --bind 0.0.0.0:$PORT</b>",
-        "Instance type: <b>Free</b>",
-        "Click <b>Create Web Service</b>",
+        "Click <b>Add New → Project</b> and select the <b>ericgitonga/career-transition</b> "
+        "repository",
+        "Because this is a monorepo shared with the <b>landing/</b> Next.js app, set "
+        "<b>Root Directory</b> to <b>intake</b> before the first deploy — otherwise Vercel "
+        "tries to build the repo root, which isn't a valid app on its own",
+        "Vercel auto-detects <b>vercel.json</b>'s <b>\"framework\": \"flask\"</b> setting and "
+        "configures the build itself — there is no build or start command to enter manually",
+        "Click <b>Deploy</b> for the first build (it will complete once the environment "
+        "variables from step 4 are added — a failed first deploy due to a missing "
+        "<b>RESEND_API_KEY</b> is expected and fine to ignore)",
     ]:
         story.append(Paragraph(f"• {line}", s["step"]))
 
-    story.append(Paragraph("4. Sign up for Resend (email delivery)", s["h3"]))
+    story.append(Paragraph("3. Sign up for Resend (email delivery)", s["h3"]))
     story.append(Paragraph(
         "Resend is a transactional email service that sends over HTTPS — it is never blocked "
         "by hosting providers the way SMTP is. The free tier allows 3,000 emails per month.",
@@ -221,22 +219,37 @@ def build_story(s):
     ]:
         story.append(Paragraph(f"• {line}", s["step"]))
 
-    story.append(Paragraph("5. Add the Resend API key to Render", s["h3"]))
+    story.append(Paragraph("4. Add environment variables in Vercel", s["h3"]))
     story.append(Paragraph(
-        "In the Render service dashboard, go to <b>Environment</b> and add one variable:",
+        "In the Vercel project, go to <b>Settings → Environment Variables</b> and add:",
         s["body"],
     ))
+    for line in [
+        "<b>RESEND_API_KEY</b> — required. The API key copied from step 3.",
+        "<b>SECRET_KEY</b> — required in production, and specifically important on Vercel: "
+        "without a fixed value the app auto-generates a random one per warm Fluid Compute "
+        "instance, causing intermittent CSRF failures once real traffic is split across more "
+        "than one instance. Generate one with "
+        "<i>python -c \"import secrets; print(secrets.token_hex(32))\"</i> and set it as a "
+        "fixed value — never regenerate it after clients start using the live form.",
+        "<b>RATELIMIT_STORAGE_URI</b> — required in production. Provision a Redis database via "
+        "<b>Storage → Marketplace Database Providers → Upstash</b> in the Vercel dashboard, "
+        "then copy the <b>rediss://</b> connection string from the <i>Upstash console's own "
+        "\"Connect\" tab</i> — not the REST endpoint Vercel's own integration page surfaces by "
+        "default (<b>UPSTASH_REDIS_REST_URL</b>/<b>_TOKEN</b>), which this app's rate limiter "
+        "can't use. Without this, every auto-scaled instance keeps its own separate counter, "
+        "silently multiplying every rate limit.",
+        "<b>FROM_EMAIL</b> — optional. Only needed to send from a verified custom domain "
+        "instead of Resend's shared <i>onboarding@resend.dev</i> address.",
+    ]:
+        story.append(Paragraph(f"• {line}", s["step"]))
     story.append(Paragraph(
-        "• <b>RESEND_API_KEY</b> — the API key copied from step 4",
-        s["step"],
-    ))
-    story.append(Paragraph(
-        "<i>The app reads this from the environment automatically. "
-        "Never put the key in the code or the repository.</i>",
+        "<i>The app reads all of these from the environment automatically. "
+        "Never put a key or connection string in the code or the repository.</i>",
         s["note"],
     ))
     story.append(Paragraph(
-        "Click <b>Save Changes</b> — Render triggers a redeploy to apply the variable.",
+        "Save, then redeploy from the <b>Deployments</b> tab so the new variables take effect.",
         s["body"],
     ))
 
@@ -250,7 +263,7 @@ def build_story(s):
 
     story.append(Paragraph("Client experience", s["h3"]))
     story.append(Paragraph(
-        "Clients open the URL, complete the 10-section dark-themed accordion form, "
+        "Clients open the URL, complete the 10-section light-themed accordion form, "
         "optionally upload documents (CV, LinkedIn export, job description, learning plan, "
         "and additional files), then click <b>Submit Onboarding Form</b>. "
         "The server generates a PDF, emails it to the consultant automatically, "
@@ -263,7 +276,7 @@ def build_story(s):
     story.append(Paragraph(
         "By default the form sends from <b>onboarding@resend.dev</b> (Resend's shared address). "
         "To send from a custom domain (e.g. <i>noreply@yourdomain.com</i>), verify the domain "
-        "in the Resend dashboard and set a <b>FROM_EMAIL</b> environment variable in Render "
+        "in the Resend dashboard and set the <b>FROM_EMAIL</b> environment variable in Vercel "
         "with the desired address.",
         s["body"],
     ))
@@ -275,13 +288,20 @@ def build_story(s):
         section_header("Deploying Updates", s),
         Spacer(1, 0.25 * cm),
         Paragraph(
-            "Push any change to the main branch — Render picks it up and redeploys "
-            "within ~2 minutes:",
+            "Push any change to the main branch — Vercel picks it up and redeploys "
+            "automatically:",
             s["body"],
         ),
         Spacer(1, 0.15 * cm),
     ]))
     story.append(code_block("git push origin main", s))
+    story.append(Spacer(1, 0.15 * cm))
+    story.append(Paragraph(
+        "A pull request gets its own throwaway <b>Preview</b> deployment first, so a change "
+        "can be checked live before it reaches real clients; merging to <b>main</b> promotes "
+        "it to <b>Production</b> at the permanent URL below.",
+        s["body"],
+    ))
 
     story.append(rule(color=MGRAY, thickness=0.5))
 
@@ -293,32 +313,29 @@ def build_story(s):
 
     story.append(Paragraph("Your URL", s["h3"]))
     story.append(Paragraph(
-        "Render assigns a permanent URL shown at the top of the service dashboard:",
+        "Vercel assigns a permanent URL shown at the top of the project dashboard:",
         s["body"],
     ))
-    story.append(code_block("https://career-transition-intake.onrender.com", s))
+    story.append(code_block("https://career-transition-intake.vercel.app", s))
     story.append(Spacer(1, 0.15 * cm))
     story.append(Paragraph(
         "This URL does not change between deploys.",
         s["note"],
     ))
 
-    story.append(Paragraph("Free tier spin-down", s["h3"]))
+    story.append(Paragraph("Cold starts", s["h3"]))
     story.append(Paragraph(
-        "On the free tier the service spins down after <b>15 minutes of inactivity</b>. "
-        "The first request after a quiet period takes ~30 seconds to wake up. "
-        "For a form shared on-demand this is acceptable — just warn clients that the "
-        "first load may be briefly slow. To eliminate spin-down, upgrade to the "
-        "<b>Starter</b> plan ($7/month) or use a free uptime monitor such as "
-        "UptimeRobot to ping the URL every 10 minutes.",
+        "Vercel's Fluid Compute has sub-second cold starts even after a period of "
+        "inactivity — unlike a free-tier server that spins down and takes tens of seconds to "
+        "wake up, there is no visible loading delay to warn clients about.",
         s["body"],
     ))
 
     story.append(Paragraph("Rotating the Resend API key", s["h3"]))
     story.append(Paragraph(
         "Go to the Resend dashboard, revoke the old key and create a new one. "
-        "Then go to <b>Render → Environment</b>, update <b>RESEND_API_KEY</b>, "
-        "and click <b>Save Changes</b>. Render redeploys automatically.",
+        "Then go to <b>Vercel → Settings → Environment Variables</b>, update "
+        "<b>RESEND_API_KEY</b>, and redeploy from the <b>Deployments</b> tab to apply it.",
         s["body"],
     ))
 

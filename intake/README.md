@@ -13,6 +13,4 @@ client entry point.
 
 Deployed to [Vercel](https://vercel.com) as a Python (Flask) Serverless Function —
 migrated off Render (see #38). Vercel redeploys automatically on every push to `main`.
-
-**Note:** [hosting.pdf](hosting.pdf) still describes the old Render setup and hasn't
-been regenerated for Vercel yet (tracked in #91).
+See [hosting.pdf](hosting.pdf) for the full one-time-setup and redeployment walkthrough.
