@@ -1,22 +1,41 @@
 name: E2E (landing)
 
 # Gates a PR on the landing page's golden-path E2E suite (landing/e2e/)
-# running against a production build on the runner. Path-filtered to
-# landing/** since this is a monorepo shared with the intake/ Flask app --
-# a change to one app shouldn't trigger the other's CI. Unlike merch-mockup/
+# running against a production build on the runner. Unlike merch-mockup/
 # ebc-songs, this app has no database, auth, or serverless functions to
 # diverge from a real deployment — it's a static marketing page — so a
 # plain `next build && next start` is a faithful stand-in and needs no
 # Vercel/Supabase secrets at all.
+#
+# Always triggers (no top-level `paths:` filter) — the `changes` job below
+# decides whether landing/** actually changed, and every other job is
+# skipped (not un-triggered) when it didn't. A required status check that
+# never runs blocks merge indefinitely under this repo's ruleset; a job
+# that runs and reports "skipped" satisfies it. This closes #90, which a
+# root-README-only PR (#89) hit: the old `paths:`-filtered trigger meant
+# "e2e"/"unit"/"lint" never ran at all for a change outside landing/** and
+# intake/**, and there was no way through short of an admin bypass.
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "landing/**"
-      - ".github/workflows/e2e.yml"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      landing: ${{ steps.filter.outputs.landing }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            landing:
+              - 'landing/**'
+              - '.github/workflows/e2e.yml'
+
   unit:
     # The ruleset requires a "unit" status check (also satisfied on
     # intake-only PRs by unit-intake.yml's job of the same name) — without
@@ -26,6 +45,8 @@ jobs:
     # same-named check, so either app's changes satisfy it standalone.
     # Runs Vitest (src/app/page.test.ts) over the page's content data and
     # constants — page.tsx has no other pure logic to unit-test.
+    needs: changes
+    if: needs.changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,6 +66,8 @@ jobs:
     # Independently gated so a lint regression can't merge just because it
     # doesn't happen to break the build (see issue #62) — landing's ESLint
     # config existed but was never invoked in CI.
+    needs: changes
+    if: needs.changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -61,6 +84,8 @@ jobs:
       - run: npm run lint
 
   e2e:
+    needs: changes
+    if: needs.changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:

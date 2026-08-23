@@ -23,12 +23,18 @@ historical archive; this repo is where active development happens going forward.
 
 ## CI
 
-Each app has its own path-filtered workflows, so a change to one doesn't trigger the other's
-suite:
+Each app has its own workflows, gated by a required `e2e`/`unit`/`lint` status check:
 
-- `landing/`: `.github/workflows/e2e.yml` runs its Playwright E2E suite (`landing/**`).
-- `intake/`: `.github/workflows/e2e-intake.yml` runs its Playwright E2E suite and
-  `.github/workflows/unit-intake.yml` runs its pytest unit suite and lint (`intake/**`).
+- `landing/`: `.github/workflows/e2e.yml` runs its Playwright E2E suite, plus `unit` (Vitest)
+  and `lint` (ESLint).
+- `intake/`: `.github/workflows/e2e-intake.yml` runs its Playwright E2E suite;
+  `.github/workflows/unit-intake.yml` runs its pytest unit suite and `lint` (ruff).
+
+Every workflow triggers on every PR; each starts with a `changes` job that checks whether its
+app's directory actually changed and skips the rest of the jobs (not the whole workflow) when
+it didn't — a skipped job still satisfies a required status check, so a PR touching neither
+`landing/**` nor `intake/**` (e.g. a root-level docs change) isn't stuck waiting on a check that
+can never run (see #90).
 
 ## Deployment
 

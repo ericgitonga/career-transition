@@ -1,9 +1,7 @@
 name: E2E (intake)
 
 # Gates a PR on the intake app's golden-path E2E suite (intake/e2e/) running
-# against the real Flask dev server on the runner. Path-filtered to
-# intake/** since this is a monorepo shared with the landing/ Next.js app —
-# a change to one app shouldn't trigger the other's CI (see e2e.yml).
+# against the real Flask dev server on the runner.
 #
 # Unlike landing, this app has a real side effect worth gating on: every
 # submission is supposed to email the consultant via Resend. RESEND_API_KEY
@@ -15,17 +13,40 @@ name: E2E (intake)
 # RATELIMIT_STORAGE_URI are left unset, since app.py already falls back to
 # an auto-generated key and in-memory rate limiting for a single-process
 # run like this one.
+#
+# Always triggers (no top-level `paths:` filter) — the `changes` job below
+# decides whether intake/** actually changed, and the `e2e` job is skipped
+# (not un-triggered) when it didn't. A required status check that never
+# runs blocks merge indefinitely under this repo's ruleset; a job that runs
+# and reports "skipped" satisfies it. This closes #90, which a
+# root-README-only PR (#89) hit: the old `paths:`-filtered trigger meant
+# "e2e"/"unit"/"lint" never ran at all for a change outside landing/** and
+# intake/**, and there was no way through short of an admin bypass.
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "intake/**"
-      - ".github/workflows/e2e-intake.yml"
   workflow_dispatch: {}
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      intake: ${{ steps.filter.outputs.intake }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            intake:
+              - 'intake/**'
+              - '.github/workflows/e2e-intake.yml'
+
   e2e:
+    needs: changes
+    if: needs.changes.outputs.intake == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
