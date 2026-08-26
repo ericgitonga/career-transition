@@ -6,6 +6,12 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.32.0] - 2026-08-26
+### Added
+- A payment note above the consent checkboxes telling applicants to send
+  their fee via M-Pesa to +254725561459 when they submit the form (closes
+  #96).
+
 ## [0.31.0] - 2026-08-14
 ### Added
 - Kenya Data Protection Act, 2019 remediation (closes #79): the single
