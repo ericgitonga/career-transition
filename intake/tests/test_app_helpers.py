@@ -8,6 +8,7 @@ round-trip. Run: pytest (from intake/, or via CI's unit-test job).
 import pytest
 
 from app import (
+    _alnum_only,
     _clip,
     _client_slug,
     _flag_sensitive_content,
@@ -78,6 +79,24 @@ def test_sanitize_strips_leading_trailing_whitespace():
 
 def test_sanitize_none_returns_empty_string():
     assert _sanitize(None) == ""
+
+
+# ── _alnum_only (M-Pesa transaction code sanitization) ──────────────────────────
+
+def test_alnum_only_strips_whitespace_and_punctuation():
+    assert _alnum_only("SFH3 XX-XX99") == "SFH3XXXX99"
+
+
+def test_alnum_only_leaves_alphanumeric_untouched():
+    assert _alnum_only("SFH3XXXXXX") == "SFH3XXXXXX"
+
+
+def test_alnum_only_none_returns_empty_string():
+    assert _alnum_only(None) == ""
+
+
+def test_alnum_only_strips_control_characters():
+    assert _alnum_only("SFH3\nXXXXXX") == "SFH3XXXXXX"
 
 
 # ── _log_field (S-16) ──────────────────────────────────────────────────────────

@@ -29,6 +29,7 @@ def test_submission_survives_special_characters():
     with browser_page() as page:
         page.goto("/")
         page.fill('input[name="full_name"]', "Alex Mercer")
+        page.fill('input[name="mpesa_code"]', "SFH3XXXXXX")
 
         # target_domain (Section 3) and anything_else (Section 9) live in
         # collapsed accordion panels — expand each before filling it in.

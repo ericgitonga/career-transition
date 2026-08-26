@@ -28,6 +28,7 @@ def test_submission_blocked_without_consent():
             multipart={
                 "csrf_token": csrf_token,
                 "full_name": "Alex Mercer",
+                "mpesa_code": "SFH3XXXXXX",
                 "cv_file": {
                     "name": "test-cv.pdf",
                     "mimeType": "application/pdf",
