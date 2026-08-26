@@ -293,10 +293,9 @@ export default function Home() {
           </h2>
           <p className="mt-6 text-base leading-7 text-slate-600">
             I&apos;m not a certified HR professional or career coach — I want to be upfront
-            about that. This tool exists because a month ago, two people came to me
-            separately, both stuck on how to navigate a career transition, and asked what I
-            thought. Those conversations turned into a process, and the process turned into
-            this.
+            about that. This tool exists because two people came to me separately, both stuck
+            on how to navigate a career transition, and asked what I thought. Those
+            conversations turned into a process, and the process turned into this.
           </p>
           <p className="mt-4 text-base leading-7 text-slate-600">
             It&apos;s early. But the signal so far has been real: one CV rewrite got its
