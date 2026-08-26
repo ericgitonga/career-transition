@@ -6,6 +6,17 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.7.1] - 2026-08-26
+
+### Fixed
+- "How it works" step 2 said "It's built by hand... not templated, not auto-generated,"
+  which contradicted the intake form's own DPA notice disclosing AI-assisted drafting.
+  Now reads "It's built for you... with AI-assisted drafting — not a generic template,
+  not spat out from a form," so nothing said publicly contradicts what's disclosed
+  privately. (closes #103)
+
+tag: `landing-v0.7.1`
+
 ## [0.7.0] - 2026-08-26
 
 ### Added

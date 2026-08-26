@@ -87,9 +87,9 @@ export const STEPS: Step[] = [
   },
   {
     number: "2",
-    title: "It's built by hand",
+    title: "It's built for you",
     description:
-      "Every section is worked through against your specific answers — not templated, not auto-generated. Delivered as a professional PDF within one working day.",
+      "Every section is worked through against your specific answers with AI-assisted drafting — not a generic template, not spat out from a form. Delivered as a professional PDF within one working day.",
   },
   {
     number: "3",
