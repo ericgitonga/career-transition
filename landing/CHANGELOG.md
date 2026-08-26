@@ -6,6 +6,21 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.7.0] - 2026-08-26
+
+### Added
+- New "A note on who's behind this" section on the landing page, between "How it works"
+  and "Pricing" — a warm, honest disclaimer that this isn't certified HR/career-coaching
+  advice, with early results shared, and a pointer to seek licensed professionals for
+  legal/financial/mental-health matters. (closes #77)
+
+### Changed
+- Pricing copy no longer claims "one flat fee" or "no hidden costs, no upsells" — kept
+  deliberately open-ended ahead of the possible Basic/Advanced tiered pricing redesign
+  in #73.
+
+tag: `landing-v0.7.0`
+
 ## [0.6.6] - 2026-08-14
 
 ### Security
