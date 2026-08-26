@@ -6,6 +6,19 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.32.2] - 2026-08-26
+### Changed
+- The DPA controller-identity notice and consent checkbox now name the
+  controller as "Eric Gitonga Mbaya" (full legal name) instead of "Eric
+  Gitonga", so it visibly encompasses the M-Pesa payment note's "Eric
+  Mbaya" and doesn't read as a mismatch (closes #100).
+
+## [0.32.1] - 2026-08-26
+### Fixed
+- The M-Pesa payment note named the wrong account holder; corrected the
+  parenthetical to "M-Pesa name: Eric Mbaya", the name the account is
+  actually registered under (closes #98).
+
 ## [0.32.0] - 2026-08-26
 ### Added
 - A payment note above the consent checkboxes telling applicants to send
