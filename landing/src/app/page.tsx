@@ -319,8 +319,8 @@ export default function Home() {
             Simple, upfront pricing
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            One flat fee for the complete Career Transition Plan. No hidden costs, no
-            upsells.
+            A clear, upfront price for the complete Career Transition Plan. No hidden costs,
+            no upsells.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-10 text-center">
             <span className="text-sm font-semibold uppercase tracking-wide text-[#0E7C7B]">
