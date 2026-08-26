@@ -286,14 +286,40 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="about" className="bg-slate-50">
+        <div className="mx-auto max-w-5xl px-6 py-20">
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            A note on who&apos;s behind this
+          </h2>
+          <p className="mt-6 text-base leading-7 text-slate-600">
+            I&apos;m not a certified HR professional or career coach — I want to be upfront
+            about that. This tool exists because two people came to me separately, both stuck
+            on how to navigate a career transition, and asked what I thought. Those
+            conversations turned into a process, and the process turned into this.
+          </p>
+          <p className="mt-4 text-base leading-7 text-slate-600">
+            It&apos;s early. But the signal so far has been real: one CV rewrite got its
+            owner a direct line to C-suite interviewers, skipping the standard process
+            entirely. Another landed a six-week training placement that&apos;s on track to
+            become a confirmed role.
+          </p>
+          <p className="mt-4 text-base leading-7 text-slate-600">
+            This isn&apos;t licensed coaching, and it isn&apos;t a substitute for legal,
+            financial, or mental-health guidance — see a qualified professional for those.
+            What it is: a genuinely useful second pair of eyes on how you&apos;re telling
+            your story, built by someone who&apos;s been asked this question enough times to
+            get good at answering it.
+          </p>
+        </div>
+      </section>
+
       <section id="pricing" className="bg-white">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
             Simple, upfront pricing
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            One flat fee for the complete Career Transition Plan. No hidden costs, no
-            upsells.
+            A clear, upfront price for the complete Career Transition Plan.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-10 text-center">
             <span className="text-sm font-semibold uppercase tracking-wide text-[#0E7C7B]">
