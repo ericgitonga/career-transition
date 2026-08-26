@@ -180,6 +180,24 @@ def _clip(value, max_len: int = 5000) -> str:
     return value[:max_len] if len(value) > max_len else value
 
 
+def _alnum_only(value: str) -> str:
+    """Strip every character that isn't a letter or digit from *value*.
+
+    M-Pesa transaction codes are always alphanumeric (e.g. "SFH3XXXXXX"), so
+    this sanitizes anything a client pastes alongside the code from the
+    confirmation SMS — stray whitespace, dashes, punctuation — rather than
+    rejecting the submission over it.
+
+    Args:
+        value: The raw string from ``request.form.get()``, or None.
+
+    Returns:
+        *value* with every non-alphanumeric character removed, or an empty
+        string if *value* is None.
+    """
+    return re.sub(r"[^A-Za-z0-9]", "", value or "")
+
+
 def _log_field(value: str) -> str:
     """Make *value* safe to embed as a ``key=value`` token in a structured log line.
 
@@ -460,8 +478,8 @@ def build_pdf(d, path):
     Builds a multi-page A4 document using ReportLab's Platypus layout engine.
     The document contains:
       - A navy cover block with the client's name and submission date.
-      - Ten labelled sections (Personal Information through the Consent
-        Record), each opened by a navy banner and closed by a divider rule.
+      - Ten labelled sections (Personal Information through the Payment &
+        Consent Record), each opened by a navy banner and closed by a divider rule.
       - A footer on every page showing the client's name and page number.
 
     The function defines a nested ``footer`` callback that ReportLab calls on
@@ -611,8 +629,11 @@ def build_pdf(d, path):
         ]),
         # DPA gap-analysis fix (s.32): a durable consent record travels with
         # the submission itself, so it survives if a client later disputes
-        # what they agreed to.
-        ("Section 10 — Consent Record", [
+        # what they agreed to. The M-Pesa code lives here too, so payment
+        # proof and consent proof are both in the one section a consultant
+        # checks before starting work.
+        ("Section 10 — Payment & Consent Record", [
+            ("M-Pesa transaction code",                   d.get("mpesa_code")),
             ("Consented to processing (required)",       "Yes" if d.get("consent_processing") else "No"),
             ("Consented to sensitive-data processing",    "Yes" if d.get("consent_sensitive") else "No"),
             ("Consent text version",                      d.get("consent_version")),
@@ -656,20 +677,22 @@ def send_email(attachment_path, attachment_name, data, has_uploads: bool):
     """
     resend.api_key = os.environ["RESEND_API_KEY"]
 
-    name     = _sanitize(data.get("full_name", "—"))
-    email    = _sanitize(data.get("client_email", "—"))
-    location = _sanitize(data.get("city_country", "—"))
-    timeline = _sanitize(data.get("timeline", "—"))
-    target   = _sanitize(data.get("target_domain", "—"))
+    name       = _sanitize(data.get("full_name", "—"))
+    email      = _sanitize(data.get("client_email", "—"))
+    location   = _sanitize(data.get("city_country", "—"))
+    timeline   = _sanitize(data.get("timeline", "—"))
+    target     = _sanitize(data.get("target_domain", "—"))
+    mpesa_code = _sanitize(data.get("mpesa_code", "—"))
     wants_cv_edit = bool(data.get("wants_cv_edit"))
 
     body = (
         f"New career transition onboarding submission received.\n\n"
-        f"Client:   {name}\n"
-        f"Email:    {email}\n"
-        f"Location: {location}\n"
-        f"Timeline: {timeline}\n"
-        f"Target:   {target}\n\n"
+        f"Client:      {name}\n"
+        f"Email:       {email}\n"
+        f"Location:    {location}\n"
+        f"Timeline:    {timeline}\n"
+        f"Target:      {target}\n"
+        f"M-Pesa code: {mpesa_code}\n\n"
         f"Full intake responses are in the attached ZIP."
         + ("\nSupporting documents (CV, JD, etc.) are bundled in there too."
            if has_uploads else "")
@@ -760,8 +783,8 @@ def submit():
           - ``"failed"``  — email attempted but an exception was raised.
           - ``"skipped"`` — ``RESEND_API_KEY`` not configured; email not attempted.
 
-    Returns HTTP 400 if ``full_name`` is missing, either consent checkbox is
-    unticked, or an uploaded file type is not whitelisted.
+    Returns HTTP 400 if ``full_name`` or ``mpesa_code`` is missing, either
+    consent checkbox is unticked, or an uploaded file type is not whitelisted.
     Returns HTTP 413 if the total upload size exceeds 4 MB (raised by Flask before this handler).
     Returns HTTP 429 if the rate limit is exceeded (raised by Flask-Limiter).
     Returns HTTP 500 if PDF generation raises an exception.
@@ -769,6 +792,16 @@ def submit():
     full_name = _clip(request.form.get("full_name", "").strip(), 200)
     if not full_name:
         return "Please enter your full name.", 400
+
+    # Proof-of-payment: the intake form asks for the fee to be sent via
+    # M-Pesa before/alongside submission, so the confirmation code is a hard
+    # blocker like full_name — no code, no way to reconcile the submission
+    # against a payment later. M-Pesa codes are always alphanumeric (e.g.
+    # "SFH3XXXXXX"), so strip anything else — stray whitespace pasted along
+    # with the code from the SMS, punctuation, etc. — rather than reject it.
+    mpesa_code = _clip(_alnum_only(request.form.get("mpesa_code", "")), 50)
+    if not mpesa_code:
+        return "Please enter your M-Pesa transaction code.", 400
 
     # DPA gap-analysis fix (s.32): both consent checkboxes are hard submission
     # blockers, same tier as full_name — no lawful basis for processing
@@ -782,6 +815,7 @@ def submit():
 
     data = dict(
         full_name=full_name,
+        mpesa_code=mpesa_code,
         client_type=_clip(request.form.get("client_type"), 100),
         client_type_other=_clip(request.form.get("client_type_other"), 500),
         time_on_form_seconds=_clip(request.form.get("time_on_form_seconds", ""), 10),

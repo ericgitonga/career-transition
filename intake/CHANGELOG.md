@@ -6,6 +6,13 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.33.0] - 2026-08-26
+### Added
+- Required "M-Pesa transaction code" field, submitted alongside the rest of the intake
+  form — sanitized to alphanumeric-only (`_alnum_only()`), recorded in the generated
+  intake PDF (Section 10, renamed "Payment & Consent Record") and in the consultant's
+  email summary (closes #101).
+
 ## [0.32.2] - 2026-08-26
 ### Changed
 - The DPA controller-identity notice and consent checkbox now name the

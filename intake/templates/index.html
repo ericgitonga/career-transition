@@ -638,10 +638,14 @@
   </div>
 
   <div class="mb-3">
-    <p class="mb-0">
+    <p class="mb-2">
       <strong>Payment:</strong> send your fee via M-Pesa to <strong>+254725561459</strong>
-      (M-Pesa name: Eric Mbaya) when you submit this form. We'll confirm receipt and get started on your plan.
+      (M-Pesa name: Eric Mbaya), then enter the confirmation code from the M-Pesa SMS below.
+      We'll confirm receipt and get started on your plan.
     </p>
+    <label class="form-label" for="mpesa-code">M-Pesa transaction code *</label>
+    <input type="text" name="mpesa_code" id="mpesa-code" class="form-control" style="max-width:260px;"
+           placeholder="e.g. SFH3XXXXXX" required>
   </div>
 
   <div class="form-check mb-2">
