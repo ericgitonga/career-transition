@@ -8,8 +8,9 @@ user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
 ## [0.34.0] - 2026-08-27
 ### Added
-- The M-Pesa payment note now states the amount to send (KES 3,750, the current
-  50% price) instead of leaving applicants to guess it (closes #105).
+- The M-Pesa payment note now states the amount to send (KES 3,750, flagged as
+  the introductory price through 31 August 2026, matching the landing page's
+  pricing section) instead of leaving applicants to guess it (closes #105).
 
 ## [0.33.0] - 2026-08-26
 ### Added
