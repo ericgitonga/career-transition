@@ -1,3 +1,6 @@
 -r requirements.txt
 pytest==9.1.1
 ruff==0.16.2
+# anthropic is dev-only: progress_app.py is a local-only script (issue #75 spike),
+# never deployed, so this dependency must not move to requirements.txt.
+anthropic==0.121.0
