@@ -8,46 +8,46 @@ export type Deliverable = {
 
 export const DELIVERABLES: Deliverable[] = [
   {
-    title: "Where you stand today",
+    title: "Stop wondering how you read to a new sector",
     description:
-      "A clear-eyed summary of your strengths and how they read in your target sector.",
+      "A clear-eyed summary of your strengths, translated into the language your target sector listens for.",
   },
   {
-    title: "Where you're heading",
+    title: "Stop guessing what to even aim for",
     description:
       "3–5 concrete role archetypes you're credibly qualified to pursue, with matching organisations in your market.",
   },
   {
-    title: "The gap, mapped precisely",
+    title: "Know exactly what's missing",
     description:
-      "A skills gap analysis showing what you already have, what you need, and how urgently.",
+      "A skills gap analysis showing what you already have, what you need, and how urgently — instead of feeling generally underqualified.",
   },
   {
-    title: "An 18-month roadmap",
+    title: "Never wonder what to do this month",
     description:
-      "Structured in semesters, with specific courses, certifications, and milestones for each phase.",
+      "An 18-month roadmap, structured in semesters, with specific courses, certifications, and milestones for each phase.",
   },
   {
-    title: "A certifications plan with costs",
-    description: "Real programmes, real providers, real prices — including free options.",
+    title: "Stop drowning in course marketing pages",
+    description: "A certifications plan with real programmes, real providers, real prices — including free options.",
   },
   {
-    title: "A networking and visibility strategy",
-    description: "How to activate your existing network and build presence in the new sector.",
+    title: "Stop treating networking like a black box",
+    description: "A strategy for activating your existing network and building presence in the new sector.",
   },
   {
-    title: "A portfolio plan",
+    title: "Start building proof before anyone hires you",
     description:
-      "6–10 pieces of work you can build now, without needing an employer to give you permission.",
+      "A portfolio plan: 6–10 pieces of work you can build now, without needing an employer to give you permission.",
   },
   {
-    title: "A monthly action tracker",
-    description: "So you know exactly what to do in month one, month six, and month twelve.",
+    title: "Never lose a free evening wondering what to do",
+    description: "A monthly action tracker so you know exactly what to do in month one, month six, and month twelve.",
   },
   {
-    title: "Your new professional narrative",
+    title: "Stop fumbling \"so what do you actually do\"",
     description:
-      "An elevator pitch ready to use, and a table that reframes your experience into the language your target sector speaks.",
+      "A ready-to-use elevator pitch, and a table that reframes your experience into the language your target sector speaks.",
   },
 ];
 
@@ -188,7 +188,7 @@ export default function Home() {
             your actual CV, your actual target role, and your actual timeline.
           </p>
           <p className="mt-4 max-w-3xl text-lg font-semibold text-slate-900">
-            That&apos;s what this service does.
+            This is what turns that scattered mess into a plan you can actually follow.
           </p>
         </div>
       </section>
@@ -199,9 +199,10 @@ export default function Home() {
             What you get
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            A professionally designed, personalised Career Transition Plan — not a
-            template, not generic advice, but a structured document built around your
-            specific CV, your target role, and your timeline.
+            You&apos;ll stop guessing and start executing: a professionally designed,
+            personalised Career Transition Plan — not a template, not generic advice, but
+            a structured document built around your specific CV, your target role, and
+            your timeline.
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {DELIVERABLES.map((item) => (
