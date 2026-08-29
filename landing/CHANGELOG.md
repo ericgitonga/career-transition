@@ -6,6 +6,18 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.7.2] - 2026-08-29
+
+### Changed
+- Landing page copy reworked to lead with the outcome for the reader instead of
+  the deliverable name or the process. "What you get" card titles now name the
+  pain resolved (e.g. "Stop wondering how you read to a new sector"), and the
+  Pain Points closer reads "This is what turns that scattered mess into a plan
+  you can actually follow" instead of "That's what this service does." (closes
+  #107)
+
+tag: `landing-v0.7.2`
+
 ## [0.7.1] - 2026-08-26
 
 ### Fixed
