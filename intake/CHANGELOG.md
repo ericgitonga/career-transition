@@ -6,6 +6,14 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.35.0] - 2026-09-01
+### Changed
+- The M-Pesa payment note now states the full price (KES 7,500) with no introductory-offer
+  wording — the offer (through 31 August 2026, added in #105) has ended, matching the landing
+  page's pricing section (closes #110).
+
+tag: `intake-v0.35.0`
+
 ## [0.34.0] - 2026-08-27
 ### Added
 - The M-Pesa payment note now states the amount to send (KES 3,750, flagged as
