@@ -323,21 +323,11 @@ export default function Home() {
             A clear, upfront price for the complete Career Transition Plan.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-10 text-center">
-            <span className="text-sm font-semibold uppercase tracking-wide text-[#0E7C7B]">
-              Introductory offer — 50% off, through August 31, 2026
-            </span>
-            <div className="flex items-baseline gap-3">
-              <span className="text-lg text-slate-400 line-through">KES 7,500</span>
-              <span className="text-4xl font-bold text-[#1B2A4A]">KES 3,750</span>
-            </div>
+            <span className="text-4xl font-bold text-[#1B2A4A]">KES 7,500</span>
             <p className="max-w-md text-sm leading-6 text-slate-600">
               A one-time fee, paid when you submit your intake form.
             </p>
             <CtaButton className="mt-4" />
-            <p className="text-xs text-slate-500">
-              This introductory price ends August 31, 2026 — after that, it&apos;s back to
-              full price.
-            </p>
           </div>
         </div>
       </section>

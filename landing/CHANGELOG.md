@@ -6,6 +6,14 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.8.0] - 2026-09-01
+
+### Changed
+- The introductory 50% off offer (through August 31, 2026) has ended — the pricing section now
+  shows the flat full price, KES 7,500, with no strikethrough or offer badge (closes #109).
+
+tag: `landing-v0.8.0`
+
 ## [0.7.2] - 2026-08-29
 
 ### Changed
