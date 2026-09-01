@@ -6,9 +6,9 @@ Sales Page That Converts" framework (headline, pain points, offer, who-it's-for 
 who-it's-not, CTA, testimonials).
 
 The primary call-to-action links out to the client intake form at
-https://career-transition-intake.vercel.app. On-page pricing (KES 7,500 introductory
-offer) is live; payment collection at submission time is not yet wired up — see
-[`../intake`](../intake)'s issue #37, a deliberate future addition, not an oversight.
+https://career-transition-intake.vercel.app. On-page pricing (KES 7,500 flat) is live;
+payment collection at submission time is not yet wired up — see [`../intake`](../intake)'s
+issue #37, a deliberate future addition, not an oversight.
 
 ## Stack
 
