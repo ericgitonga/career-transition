@@ -6,6 +6,12 @@ pre-1.0 (initial development) — the major version stays at `0` until a stable,
 production-ready release is declared. MINOR bumps cover new features and
 user-facing changes; PATCH bumps cover fixes, docs, and housekeeping.
 
+## [0.35.1] - 2026-10-08
+### Changed
+- Untrack the 6 local extras files from git (preserved in shared ~/Develop/projects/extras/projects/career-transition/intake/) and update intake/.gitignore to ignore extras/ entirely (closes #115).
+
+tag: `intake-v0.35.1`
+
 ## [0.35.0] - 2026-09-01
 ### Changed
 - The M-Pesa payment note now states the full price (KES 7,500) with no introductory-offer
